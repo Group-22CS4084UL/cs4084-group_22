@@ -1,6 +1,3 @@
-# HelloWorld
-Individual Assignment of CS4084
+# Group22_CS4084
+The group repository for CS4084
 
-To initialise an empty view project in Android Studio
-
-Concatenate the name into "Hello World"
