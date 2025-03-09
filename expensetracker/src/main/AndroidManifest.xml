@@ -10,14 +10,31 @@
         android:theme="@style/Theme.Learning">
         <activity
             android:name=".MainActivity"
-            android:exported="true"
-            android:theme="@style/Theme.Learning">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".IncomeActivity"
+            android:exported="false"
+            android:label="Add Income"
+            android:parentActivityName=".MainActivity" />
+
+        <activity
+            android:name=".ExpenseActivity"
+            android:exported="false"
+            android:label="Add Expense"
+            android:parentActivityName=".MainActivity" />
+
+        <activity
+            android:name=".SpendingVisualizationActivity"
+            android:exported="false"
+            android:label="Spending Analysis"
+            android:parentActivityName=".MainActivity" />
+
     </application>
 
 </manifest>
