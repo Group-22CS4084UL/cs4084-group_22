@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.example.expensetracker.MainActivity">
+
+    <item
+        android:id="@+id/action_theme"
+        android:icon="@drawable/ic_theme_mode"
+        android:title="Toggle Theme"
+        android:tooltipText="@string/tooltip_theme"
+        app:showAsAction="always"
+        android:orderInCategory="100" />
+
+    <item
+        android:id="@+id/action_notifications"
+        android:icon="@drawable/ic_notification"
+        android:title="Daily Reminders"
+        android:tooltipText="@string/tooltip_notifications"
+        android:checkable="true"
+        app:showAsAction="always"
+        android:orderInCategory="200" />
+
+    <item
+        android:id="@+id/action_export"
+        android:icon="@drawable/ic_export"
+        android:title="Export Data"
+        android:tooltipText="@string/tooltip_export"
+        app:showAsAction="always"
+        android:orderInCategory="300" />
+
+</menu>
