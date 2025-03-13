@@ -1,148 +1,154 @@
 package com.example.expensetracker;
 
-import android.content.Context;
 import android.database.Cursor;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
-import androidx.annotation.NonNull;
+import android.os.Bundle;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
+import android.widget.Button;
+import android.widget.Toast;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import java.text.SimpleDateFormat;
+import com.google.android.material.textfield.TextInputEditText;
 import java.util.Date;
-import java.util.Locale;
 
+/**
+ * ExpenseActivity: Manages expense transaction entry and display
+ * Features:
+ * - Add new expense transactions
+ * - View expense history
+ * - Delete existing expense entries
+ * - Categorize expenses
+ */
+public class ExpenseActivity extends AppCompatActivity implements TransactionAdapter.OnTransactionDeleteListener {
+    // UI Elements
+    private TextInputEditText amountInput, noteInput;
+    private AutoCompleteTextView categorySpinner;
+    private Button addButton;
+    private RecyclerView expenseList;
+    
+    // Database and adapter
+    private DatabaseHelper dbHelper;
+    private TransactionAdapter adapter;
 
-// Adapter class: used to display expense records from the database into the RecyclerView.
-public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.ViewHolder> {
-
-    private Cursor cursor;// Result sets (cursors) returned from database queries.
-    private final SimpleDateFormat dateFormat; // Date formatting tool.
-    private final DatabaseHelper dbHelper;// Database operation helper classes.
-    private final Context context;// Context objects
-    private final OnTransactionDeleteListener deleteListener;// Remove the event listener to notify the external interface of a refresh.
-
-    // Column names in the data table
-    private static final String COLUMN_ID = "id";
-    private static final String COLUMN_AMOUNT = "amount";
-    private static final String COLUMN_CATEGORY = "category";
-    private static final String COLUMN_DATE = "date";
-    private static final String COLUMN_NOTE = "note";
-
-    // Delete callback interface so that the Activity can sense the delete action and trigger a refresh.
-    public interface OnTransactionDeleteListener {
-        void onTransactionDeleted();
-    }
-
-    // Constructor methods to initialise contexts, listeners, database tool classes and date formats
-    public TransactionAdapter(Context context, OnTransactionDeleteListener listener) {
-        this.context = context;
-        this.deleteListener = listener;
-        this.dbHelper = new DatabaseHelper(context);
-        dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
-    }
-
-    // Create the ViewHolder, which is responsible for loading the layout of each Item.
-    @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_transaction, parent, false);
-        return new ViewHolder(view);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_expense);
+
+        // Initialize UI components
+        initializeViews();
+
+        // Set up database helper
+        dbHelper = new DatabaseHelper(this);
+
+        // Configure category dropdown
+        setupCategorySpinner();
+
+        // Set up RecyclerView for expense list
+        setupRecyclerView();
+
+        // Set up click listener for add button
+        addButton.setOnClickListener(v -> addExpense());
+
+        // Load existing expense transactions
+        loadExpenseTransactions();
     }
 
+    /**
+     * Initializes all UI elements from the layout
+     */
+    private void initializeViews() {
+        amountInput = findViewById(R.id.amountInput);
+        noteInput = findViewById(R.id.noteInput);
+        categorySpinner = findViewById(R.id.categorySpinner);
+        addButton = findViewById(R.id.addButton);
+        expenseList = findViewById(R.id.expenseList);
+    }
 
-    // Bind data to each ViewHolder.
-    @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        // Get the index of each column
-        if (cursor != null && cursor.moveToPosition(position)) {
-            int amountIndex = cursor.getColumnIndexOrThrow(COLUMN_AMOUNT);
-            int categoryIndex = cursor.getColumnIndexOrThrow(COLUMN_CATEGORY);
-            int noteIndex = cursor.getColumnIndexOrThrow(COLUMN_NOTE);
-            int dateIndex = cursor.getColumnIndexOrThrow(COLUMN_DATE);
+    /**
+     * Sets up the category spinner with predefined expense categories
+     */
+    private void setupCategorySpinner() {
+        ArrayAdapter<CharSequence> categoryAdapter = ArrayAdapter.createFromResource(this,
+                R.array.expense_categories, android.R.layout.simple_dropdown_item_1line);
+        categorySpinner.setAdapter(categoryAdapter);
+        categorySpinner.setText(categoryAdapter.getItem(0).toString(), false);
+    }
 
-            // Read the data for each field
-            double amount = cursor.getDouble(amountIndex);
-            String category = cursor.getString(categoryIndex);
-            String note = cursor.getString(noteIndex);
-            long dateMillis = cursor.getLong(dateIndex);
+    /**
+     * Configures the RecyclerView with adapter and layout manager
+     */
+    private void setupRecyclerView() {
+        adapter = new TransactionAdapter(this, this);
+        expenseList.setLayoutManager(new LinearLayoutManager(this));
+        expenseList.setAdapter(adapter);
+    }
 
-            // Populate the interface with data
-            holder.amountText.setText(String.format(Locale.getDefault(), "$%.2f", amount));
-            holder.categoryText.setText(category != null ? category : "");// Avoid null pointers
-            holder.noteText.setText(note != null ? note : "");// Avoid null pointers
-            holder.dateText.setText(dateFormat.format(new Date(dateMillis)));// Timestamp to date
+    /**
+     * Handles the addition of a new expense transaction
+     * Includes input validation and database insertion
+     */
+    private void addExpense() {
+        String amountStr = amountInput.getText().toString();
+        String note = noteInput.getText().toString();
+        String category = categorySpinner.getText().toString();
 
-            // All records are expenditures, set the amount to red
-            holder.amountText.setTextColor(0xFFF44336);
+        // Validate amount input
+        if (amountStr.isEmpty()) {
+            amountInput.setError("Please enter amount");
+            return;
+        }
+
+        try {
+            // Parse and save the expense transaction
+            double amount = Double.parseDouble(amountStr);
+            long result = dbHelper.addTransaction(amount, "expense", category, note);
+
+            if (result != -1) {
+                // Success - clear inputs and refresh list
+                Toast.makeText(this, "Expense added successfully", Toast.LENGTH_SHORT).show();
+                clearInputs();
+                loadExpenseTransactions();
+            } else {
+                // Database error
+                Toast.makeText(this, "Error adding expense", Toast.LENGTH_SHORT).show();
+            }
+        } catch (NumberFormatException e) {
+            // Invalid number format
+            amountInput.setError("Invalid amount format");
         }
     }
 
-    // Returns the number of list items, based on the number of cursor records.
+    /**
+     * Clears all input fields after successful transaction
+     */
+    private void clearInputs() {
+        amountInput.setText("");
+        noteInput.setText("");
+        categorySpinner.setText(categorySpinner.getAdapter().getItem(0).toString(), false);
+    }
+
+    /**
+     * Loads and displays all expense transactions
+     */
+    private void loadExpenseTransactions() {
+        Cursor cursor = dbHelper.getTransactionsByType("expense");
+        adapter.swapCursor(cursor);
+    }
+
     @Override
-    public int getItemCount() {
-        return cursor != null ? cursor.getCount() : 0;
+    public void onTransactionDeleted() {
+        // Refresh the expense list after deletion
+        loadExpenseTransactions();
     }
 
-
-    // Update the data source (switch cursors) and refresh the interface
-    public void swapCursor(Cursor newCursor) {
-        if (cursor != null) {
-            cursor.close();// Close old cursors to prevent memory leaks
-        }
-        cursor = newCursor;// Replace the new cursor
-        notifyDataSetChanged();// Notify the RecyclerView to refresh.
-    }
-
-
-    // Delete a record in a certain location
-    public void deleteItem(int position) {
-        if (cursor != null && cursor.moveToPosition(position)) {
-            int idIndex = cursor.getColumnIndexOrThrow(COLUMN_ID);
-            long id = cursor.getLong(idIndex);
-            dbHelper.deleteTransaction(id);// Call DatabaseHelper to delete records
-            deleteListener.onTransactionDeleted();// Notify external refresh
-        }
-    }
-
-
-
-    // Filter records by date range
-    public void filterByDate(long startDate, long endDate) {
-        Cursor filteredCursor = dbHelper.getExpensesByDateRange(startDate, endDate);
-        swapCursor(filteredCursor);// Switch to filtered data
-    }
-
-
-    // Search records by keyword
-    public void filterBySearch(String query) {
-        Cursor filteredCursor = dbHelper.searchExpenses(query);
-        swapCursor(filteredCursor);// Switch to search results
-    }
-
-
-    // Get context for external use
-    public Context getContext() {
-        return context;
-    }
-
-    // ViewHolder: responsible for caching references to controls in the Item to improve performance.
-    static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView amountText;
-        TextView categoryText;
-        TextView noteText;
-        TextView dateText;
-
-        // Initialise references to each TextView.
-        ViewHolder(View itemView) {
-            super(itemView);
-            amountText = itemView.findViewById(R.id.amountText);
-            categoryText = itemView.findViewById(R.id.categoryText);
-            noteText = itemView.findViewById(R.id.noteText);
-            dateText = itemView.findViewById(R.id.dateText);
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Clean up database connection
+        if (dbHelper != null) {
+            dbHelper.close();
         }
     }
 }
-
