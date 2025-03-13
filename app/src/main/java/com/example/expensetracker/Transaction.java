@@ -68,4 +68,3 @@ public class Transaction {
         this.note = description;
     }
 }
-
