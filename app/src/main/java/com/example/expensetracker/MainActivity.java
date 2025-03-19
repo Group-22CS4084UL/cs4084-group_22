@@ -7,57 +7,45 @@ import android.view.MenuItem;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.ItemTouchHelper;
 import com.example.expensetracker.databinding.ActivityMainBinding;
-import java.util.ArrayList;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 
 public class MainActivity extends AppCompatActivity {
-    private ActivityMainBinding binding;
-    private TransactionAdapter adapter;
     private DatabaseHelper dbHelper;
+    private TransactionAdapter adapter;
+    private ActivityMainBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
+        setSupportActionBar(binding.toolbar);
+        
+        // Initialize database helper
         dbHelper = new DatabaseHelper(this);
-        setupRecyclerView();
-        setupFABs();
-    }
-
-    private void setupRecyclerView() {
+        
+        // Set up RecyclerView
         adapter = new TransactionAdapter();
-        binding.transactionList.setLayoutManager(new LinearLayoutManager(this));
-        binding.transactionList.setAdapter(adapter);
+        binding.contentMain.transactionList.setLayoutManager(new LinearLayoutManager(this));
+        binding.contentMain.transactionList.setAdapter(adapter);
         
-        // Add swipe to delete
-        SwipeToDeleteCallback swipeHandler = new SwipeToDeleteCallback(adapter, this) {
-            @Override
-            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-                int position = viewHolder.getAdapterPosition();
-                Transaction transaction = adapter.getTransaction(position);
-                if (transaction != null) {
-                    dbHelper.deleteTransaction(transaction.getId());
-                    adapter.removeTransaction(position);
-                }
-            }
-        };
+        // Load transactions from database
+        loadTransactions();
         
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(swipeHandler);
-        itemTouchHelper.attachToRecyclerView(binding.transactionList);
-    }
-
-    private void setupFABs() {
-        binding.addIncomeFab.setOnClickListener(v -> {
-            Intent intent = new Intent(this, IncomeActivity.class);
-            startActivity(intent);
+        // Set up FABs for adding income and expenses
+        binding.fabAddIncome.setOnClickListener(view -> {
+            // TODO: Implement add income functionality
+            Snackbar.make(view, "Add income clicked", Snackbar.LENGTH_LONG)
+                    .setAction("Action", null).show();
         });
-
-        binding.addExpenseFab.setOnClickListener(v -> {
-            Intent intent = new Intent(this, ExpenseActivity.class);
-            startActivity(intent);
+        
+        binding.fabAddExpense.setOnClickListener(view -> {
+            // TODO: Implement add expense functionality
+            Snackbar.make(view, "Add expense clicked", Snackbar.LENGTH_LONG)
+                    .setAction("Action", null).show();
         });
     }
 
@@ -73,17 +61,24 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_view_spending) {
+        // Handle action bar item clicks here
+        int id = item.getItemId();
+
+        if (id == R.id.action_settings) {
+            return true;
+        } else if (id == R.id.action_view_spending) {
             Intent intent = new Intent(this, SpendingVisualizationActivity.class);
             startActivity(intent);
             return true;
         }
+
         return super.onOptionsItemSelected(item);
     }
 }

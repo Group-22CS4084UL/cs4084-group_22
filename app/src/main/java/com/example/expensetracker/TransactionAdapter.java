@@ -1,23 +1,33 @@
 package com.example.expensetracker;
 
-import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import com.example.expensetracker.databinding.ItemTransactionBinding;
+
+import com.example.expensetracker.R;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
+/**
+ * Adapter for displaying transaction items in a RecyclerView
+ */
 public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.TransactionViewHolder> {
-    private final List<Transaction> transactions;
+    private List<Transaction> transactions = new ArrayList<>();
 
-    public TransactionAdapter() {
-        this.transactions = new ArrayList<>();
-    }
-
+    /**
+     * Updates the transaction list and refreshes the view
+     * @param newTransactions New list of transactions to display
+     */
     public void setTransactions(List<Transaction> newTransactions) {
+        if (newTransactions == null) {
+            return;
+        }
         int oldSize = this.transactions.size();
         this.transactions.clear();
         notifyItemRangeRemoved(0, oldSize);
@@ -25,61 +35,71 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
         notifyItemRangeInserted(0, newTransactions.size());
     }
 
-    public Transaction getTransaction(int position) {
-        if (position >= 0 && position < transactions.size()) {
-            return transactions.get(position);
-        }
-        return null;
-    }
-
-    public void removeTransaction(int position) {
-        if (position >= 0 && position < transactions.size()) {
-            transactions.remove(position);
-            notifyItemRemoved(position);
-        }
-    }
-
     @NonNull
     @Override
     public TransactionViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        ItemTransactionBinding binding = ItemTransactionBinding.inflate(
-            LayoutInflater.from(parent.getContext()), parent, false);
-        return new TransactionViewHolder(binding);
+        View itemView = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.item_transaction, parent, false);
+        return new TransactionViewHolder(itemView);
     }
-
+    
     @Override
     public void onBindViewHolder(@NonNull TransactionViewHolder holder, int position) {
         Transaction transaction = transactions.get(position);
         holder.bind(transaction);
     }
-
+    
     @Override
     public int getItemCount() {
         return transactions.size();
     }
-
-    static class TransactionViewHolder extends RecyclerView.ViewHolder {
-        private final ItemTransactionBinding binding;
-
-        public TransactionViewHolder(ItemTransactionBinding binding) {
-            super(binding.getRoot());
-            this.binding = binding;
+    
+    /**
+     * Removes a transaction at the specified position
+     * @param position Position of the transaction to remove
+     */
+    public void removeItem(int position) {
+        if (position >= 0 && position < transactions.size()) {
+            transactions.remove(position);
+            notifyItemRemoved(position);
         }
-
-        public void bind(Transaction transaction) {
-            binding.titleText.setText(transaction.getTitle());
-            binding.descriptionText.setText(transaction.getDescription());
-            binding.dateText.setText(transaction.getDate());
+    }
+    
+    /**
+     * ViewHolder for transaction items
+     */
+    static class TransactionViewHolder extends RecyclerView.ViewHolder {
+        private final TextView transactionTitle;
+        private final TextView transactionDescription;
+        private final TextView transactionDate;
+        private final TextView transactionAmount;
+        
+        TransactionViewHolder(View itemView) {
+            super(itemView);
+            transactionTitle = itemView.findViewById(R.id.transactionTitle);
+            transactionDescription = itemView.findViewById(R.id.transactionDescription);
+            transactionDate = itemView.findViewById(R.id.transactionDate);
+            transactionAmount = itemView.findViewById(R.id.transactionAmount);
+        }
+        
+        /**
+         * Binds transaction data to the view
+         * @param transaction Transaction to display
+         */
+        void bind(Transaction transaction) {
+            transactionTitle.setText(transaction.getCategory());
+            transactionDescription.setText(transaction.getDescription());
+            transactionDate.setText(transaction.getDate());
             
-            double amount = transaction.getAmount();
-            String amountText = String.format(Locale.getDefault(), "%.2f", Math.abs(amount));
-            binding.amountText.setText(amountText);
-            
-            // Set text color based on transaction type
-            int textColor = amount >= 0 ? 
-                binding.getRoot().getContext().getColor(R.color.income_green) :
-                binding.getRoot().getContext().getColor(R.color.expense_red);
-            binding.amountText.setTextColor(textColor);
+            // Set amount with appropriate formatting
+            String amountText = String.format("%.2f", transaction.getAmount());
+            if (transaction.getAmount() >= 0) {
+                transactionAmount.setTextColor(Color.GREEN);
+                transactionAmount.setText("+" + amountText);
+            } else {
+                transactionAmount.setTextColor(Color.RED);
+                transactionAmount.setText(amountText);
+            }
         }
     }
 }

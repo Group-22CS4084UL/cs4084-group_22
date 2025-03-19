@@ -6,12 +6,22 @@ public class Transaction {
     private String description;
     private double amount;
     private String date;
+    private String category;
 
     public Transaction(String title, String description, double amount, String date) {
         this.title = title;
         this.description = description;
         this.amount = amount;
         this.date = date;
+        this.category = amount >= 0 ? "Income" : "Expense";
+    }
+
+    public Transaction(String title, String description, double amount, String date, String category) {
+        this.title = title;
+        this.description = description;
+        this.amount = amount;
+        this.date = date;
+        this.category = category;
     }
 
     public long getId() {
@@ -52,5 +62,13 @@ public class Transaction {
 
     public void setDate(String date) {
         this.date = date;
+    }
+    
+    public String getCategory() {
+        return category;
+    }
+    
+    public void setCategory(String category) {
+        this.category = category;
     }
 }

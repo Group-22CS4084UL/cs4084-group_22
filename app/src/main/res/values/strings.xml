@@ -13,6 +13,7 @@
     <string name="tutorial_theme">Customize app appearance</string>
     <string name="tutorial_notifications">Set up reminders</string>
     <string name="tutorial_export">Export your data</string>
+    <string name="tutorial_complete">Tutorial complete! You\'re all set to start tracking your finances.</string>
 
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">First Fragment</string>
