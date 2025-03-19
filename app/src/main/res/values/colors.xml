@@ -4,4 +4,7 @@
     <color name="white">#FFFFFFFF</color>
     <color name="expense_red">#FFE53935</color>
     <color name="income_green">#FF43A047</color>
+    <color name="colorPrimary">#FF6200EE</color>
+    <color name="colorPrimaryDark">#FF3700B3</color>
+    <color name="colorAccent">#FF03DAC5</color>
 </resources>
