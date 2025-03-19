@@ -5,6 +5,8 @@ import android.view.MenuItem;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.expensetracker.databinding.ActivityIncomeBinding;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
 
 public class IncomeActivity extends AppCompatActivity {
@@ -50,7 +52,8 @@ public class IncomeActivity extends AppCompatActivity {
     }
 
     private String getCurrentDate() {
-        return java.time.LocalDate.now().toString();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        return dateFormat.format(new Date());
     }
 
     @Override
