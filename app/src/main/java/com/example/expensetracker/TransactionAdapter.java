@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Locale;
 
 public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.TransactionViewHolder> {
-    private List<Transaction> transactions;
+    private final List<Transaction> transactions;
 
     public TransactionAdapter() {
         this.transactions = new ArrayList<>();
@@ -23,6 +23,13 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
         notifyItemRangeRemoved(0, oldSize);
         this.transactions.addAll(newTransactions);
         notifyItemRangeInserted(0, newTransactions.size());
+    }
+
+    public Transaction getTransaction(int position) {
+        if (position >= 0 && position < transactions.size()) {
+            return transactions.get(position);
+        }
+        return null;
     }
 
     public void removeTransaction(int position) {
@@ -51,25 +58,28 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
         return transactions.size();
     }
 
-    public static class TransactionViewHolder extends RecyclerView.ViewHolder {
+    static class TransactionViewHolder extends RecyclerView.ViewHolder {
         private final ItemTransactionBinding binding;
 
-        TransactionViewHolder(ItemTransactionBinding binding) {
+        public TransactionViewHolder(ItemTransactionBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
         }
 
-        void bind(Transaction transaction) {
+        public void bind(Transaction transaction) {
             binding.titleText.setText(transaction.getTitle());
             binding.descriptionText.setText(transaction.getDescription());
-            binding.amountText.setText(String.format(Locale.getDefault(), "%.2f", transaction.getAmount()));
             binding.dateText.setText(transaction.getDate());
             
+            double amount = transaction.getAmount();
+            String amountText = String.format(Locale.getDefault(), "%.2f", Math.abs(amount));
+            binding.amountText.setText(amountText);
+            
             // Set text color based on transaction type
-            int color = transaction.getAmount() < 0 
-                ? binding.getRoot().getContext().getColor(android.R.color.holo_red_dark)
-                : binding.getRoot().getContext().getColor(android.R.color.holo_green_dark);
-            binding.amountText.setTextColor(color);
+            int textColor = amount >= 0 ? 
+                binding.getRoot().getContext().getColor(R.color.income_green) :
+                binding.getRoot().getContext().getColor(R.color.expense_red);
+            binding.amountText.setTextColor(textColor);
         }
     }
 }

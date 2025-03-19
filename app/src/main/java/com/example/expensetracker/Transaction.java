@@ -1,6 +1,7 @@
 package com.example.expensetracker;
 
 public class Transaction {
+    private long id;
     private String title;
     private String description;
     private double amount;
@@ -11,6 +12,14 @@ public class Transaction {
         this.description = description;
         this.amount = amount;
         this.date = date;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public String getTitle() {
