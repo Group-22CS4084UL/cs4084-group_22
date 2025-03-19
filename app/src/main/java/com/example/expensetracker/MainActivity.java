@@ -6,6 +6,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import com.example.expensetracker.databinding.ActivityMainBinding;
 import java.util.ArrayList;
 
@@ -18,28 +19,27 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        setSupportActionBar(binding.toolbar);
 
         setupRecyclerView();
         setupFABs();
     }
 
     private void setupRecyclerView() {
-        adapter = new TransactionAdapter(this);
-        binding.contentMain.transactionList.setLayoutManager(new LinearLayoutManager(this));
-        binding.contentMain.transactionList.setAdapter(adapter);
+        adapter = new TransactionAdapter();
+        binding.transactionList.setLayoutManager(new LinearLayoutManager(this));
+        binding.transactionList.setAdapter(adapter);
         
-        // TODO: Load transactions from database
+        // Initialize with empty list
         adapter.setTransactions(new ArrayList<>());
     }
 
     private void setupFABs() {
-        binding.fabIncome.setOnClickListener(v -> {
+        binding.addIncomeFab.setOnClickListener(v -> {
             Intent intent = new Intent(this, IncomeActivity.class);
             startActivity(intent);
         });
 
-        binding.fabExpense.setOnClickListener(v -> {
+        binding.addExpenseFab.setOnClickListener(v -> {
             Intent intent = new Intent(this, ExpenseActivity.class);
             startActivity(intent);
         });
@@ -64,6 +64,5 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         // TODO: Refresh transactions from database
-        adapter.setTransactions(new ArrayList<>());
     }
 }

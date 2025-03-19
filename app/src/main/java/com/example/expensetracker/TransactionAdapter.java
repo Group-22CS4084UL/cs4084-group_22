@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.expensetracker.databinding.ItemTransactionBinding;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.TransactionViewHolder> {
     private List<Transaction> transactions;
@@ -16,9 +17,12 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
         this.transactions = new ArrayList<>();
     }
 
-    public void setTransactions(List<Transaction> transactions) {
-        this.transactions = transactions;
-        notifyDataSetChanged();
+    public void setTransactions(List<Transaction> newTransactions) {
+        int oldSize = this.transactions.size();
+        this.transactions.clear();
+        notifyItemRangeRemoved(0, oldSize);
+        this.transactions.addAll(newTransactions);
+        notifyItemRangeInserted(0, newTransactions.size());
     }
 
     public void removeTransaction(int position) {
@@ -47,7 +51,7 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
         return transactions.size();
     }
 
-    static class TransactionViewHolder extends RecyclerView.ViewHolder {
+    public static class TransactionViewHolder extends RecyclerView.ViewHolder {
         private final ItemTransactionBinding binding;
 
         TransactionViewHolder(ItemTransactionBinding binding) {
@@ -56,10 +60,16 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
         }
 
         void bind(Transaction transaction) {
-            binding.titleTextView.setText(transaction.getTitle());
-            binding.descriptionTextView.setText(transaction.getDescription());
-            binding.amountTextView.setText(String.format("%.2f", transaction.getAmount()));
-            binding.dateTextView.setText(transaction.getDate());
+            binding.titleText.setText(transaction.getTitle());
+            binding.descriptionText.setText(transaction.getDescription());
+            binding.amountText.setText(String.format(Locale.getDefault(), "%.2f", transaction.getAmount()));
+            binding.dateText.setText(transaction.getDate());
+            
+            // Set text color based on transaction type
+            int color = transaction.getAmount() < 0 
+                ? binding.getRoot().getContext().getColor(android.R.color.holo_red_dark)
+                : binding.getRoot().getContext().getColor(android.R.color.holo_green_dark);
+            binding.amountText.setTextColor(color);
         }
     }
 }
