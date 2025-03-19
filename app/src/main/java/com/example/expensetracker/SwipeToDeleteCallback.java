@@ -1,11 +1,11 @@
 package com.example.expensetracker;
 
+import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -16,16 +16,19 @@ public class SwipeToDeleteCallback extends ItemTouchHelper.SimpleCallback {
     private final Drawable icon;
     private final ColorDrawable background;
 
-    public SwipeToDeleteCallback(TransactionAdapter adapter) {
-        super(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT);
+    public SwipeToDeleteCallback(TransactionAdapter adapter, Context context) {
+        super(0, ItemTouchHelper.LEFT);
         this.adapter = adapter;
-        this.background = new ColorDrawable(Color.RED);
+        
+        // Initialize the delete icon
+        icon = ContextCompat.getDrawable(context, android.R.drawable.ic_menu_delete);
+        
+        // Initialize background
+        background = new ColorDrawable(Color.RED);
     }
 
     @Override
-    public boolean onMove(@NonNull RecyclerView recyclerView,
-                         @NonNull RecyclerView.ViewHolder viewHolder,
-                         @NonNull RecyclerView.ViewHolder target) {
+    public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
         return false;
     }
 
@@ -36,28 +39,32 @@ public class SwipeToDeleteCallback extends ItemTouchHelper.SimpleCallback {
     }
 
     @Override
-    public void onChildDraw(@NonNull Canvas c,
-                           @NonNull RecyclerView recyclerView,
-                           @NonNull RecyclerView.ViewHolder viewHolder,
-                           float dX, float dY,
-                           int actionState,
-                           boolean isCurrentlyActive) {
+    public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder,
+                           float dX, float dY, int actionState, boolean isCurrentlyActive) {
         super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
 
-        View itemView = viewHolder.itemView;
-        int backgroundCornerOffset = 20;
+        if (icon != null) {
+            int itemHeight = viewHolder.itemView.getHeight();
+            
+            // Calculate icon bounds
+            int iconMargin = (itemHeight - icon.getIntrinsicHeight()) / 2;
+            int iconTop = viewHolder.itemView.getTop() + iconMargin;
+            int iconBottom = iconTop + icon.getIntrinsicHeight();
+            int iconLeft = viewHolder.itemView.getRight() - iconMargin - icon.getIntrinsicWidth();
+            int iconRight = viewHolder.itemView.getRight() - iconMargin;
+            icon.setBounds(iconLeft, iconTop, iconRight, iconBottom);
 
-        if (dX > 0) { // Swiping to the right
-            background.setBounds(itemView.getLeft(), itemView.getTop(),
-                    itemView.getLeft() + ((int) dX) + backgroundCornerOffset,
-                    itemView.getBottom());
-        } else if (dX < 0) { // Swiping to the left
-            background.setBounds(itemView.getRight() + ((int) dX) - backgroundCornerOffset,
-                    itemView.getTop(), itemView.getRight(), itemView.getBottom());
-        } else { // No swipe
-            background.setBounds(0, 0, 0, 0);
+            // Draw background
+            background.setBounds(
+                viewHolder.itemView.getRight() + ((int) dX),
+                viewHolder.itemView.getTop(),
+                viewHolder.itemView.getRight(),
+                viewHolder.itemView.getBottom()
+            );
+            background.draw(c);
+
+            // Draw icon
+            icon.draw(c);
         }
-
-        background.draw(c);
     }
 }
