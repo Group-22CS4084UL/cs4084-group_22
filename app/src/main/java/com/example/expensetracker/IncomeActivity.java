@@ -4,25 +4,17 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-import com.example.expensetracker.databinding.ActivityExpenseBinding;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import com.example.expensetracker.databinding.ActivityIncomeBinding;
 import java.util.Locale;
 
 public class IncomeActivity extends AppCompatActivity {
-    private ActivityExpenseBinding binding;
+    private ActivityIncomeBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityExpenseBinding.inflate(getLayoutInflater());
+        binding = ActivityIncomeBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
-        setSupportActionBar(binding.toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle("Add Income");
-        }
 
         // Set current date by default
         binding.dateEditText.setText(getCurrentDate());
@@ -33,28 +25,32 @@ public class IncomeActivity extends AppCompatActivity {
 
     private void saveIncome() {
         String title = binding.titleEditText.getText().toString().trim();
-        String amountStr = binding.amountEditText.getText().toString().trim();
         String description = binding.descriptionEditText.getText().toString().trim();
+        String amountStr = binding.amountEditText.getText().toString().trim();
         String date = binding.dateEditText.getText().toString();
 
-        if (title.isEmpty() || amountStr.isEmpty() || date.isEmpty() || description.isEmpty()) {
-            Toast.makeText(this, "Please fill in all required fields", Toast.LENGTH_SHORT).show();
+        if (title.isEmpty() || description.isEmpty() || amountStr.isEmpty() || date.isEmpty()) {
+            Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
             return;
         }
 
         try {
-            double amount = Math.abs(Double.parseDouble(amountStr)); // Make amount positive for income
-            Transaction transaction = new Transaction(amount, description, date, title);
+            double amount = Double.parseDouble(amountStr);
+            if (amount <= 0) {
+                Toast.makeText(this, "Amount must be greater than 0", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            Transaction transaction = new Transaction(title, description, amount, date);
             // TODO: Save transaction to database
             finish();
         } catch (NumberFormatException e) {
-            Toast.makeText(this, "Please enter a valid amount", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Invalid amount", Toast.LENGTH_SHORT).show();
         }
     }
 
     private String getCurrentDate() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-        return dateFormat.format(new Date());
+        return java.time.LocalDate.now().toString();
     }
 
     @Override
