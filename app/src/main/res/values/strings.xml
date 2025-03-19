@@ -1,24 +1,12 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">ExpenseTracker</string>
+    <string name="app_name">Expensetracker</string>
     <string name="action_settings">Settings</string>
-    <string name="tooltip_theme">Switch between light and dark mode</string>
-    <string name="tooltip_notifications">Enable/disable daily expense reminders at 8:00 PM</string>
-    <string name="tooltip_export">Export your expense data to CSV</string>
-    <string name="tutorial_welcome">Welcome to Expense Tracker!</string>
-    <string name="tutorial_income">Track your income by tapping here</string>
-    <string name="tutorial_expense">Add your daily expenses here</string>
-    <string name="tutorial_visualization">View your spending patterns and analysis</string>
-    <string name="tutorial_theme">Change app theme</string>
-    <string name="tutorial_notifications">Set daily reminders</string>
-    <string name="tutorial_export">Export your data</string>
-    <string name="tutorial_got_it">Got it!</string>
-    <string name="tutorial_next">Next</string>
-    <string name="tutorial_finish">Finish</string>
+    <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">First Fragment</string>
     <string name="second_fragment_label">Second Fragment</string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>
+
     <string name="lorem_ipsum">
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam in scelerisque sem. Mauris
         volutpat, dolor id interdum ullamcorper, risus dolor egestas lectus, sit amet mattis purus
