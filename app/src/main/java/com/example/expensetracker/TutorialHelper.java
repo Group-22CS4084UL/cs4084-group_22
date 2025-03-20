@@ -49,6 +49,23 @@ public class TutorialHelper {
     }
 
     /**
+     * Checks if this is the first launch of the app
+     * @return true if this is the first launch, false otherwise
+     */
+    public boolean isFirstLaunch() {
+        SharedPreferences prefs = activity.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        return !prefs.getBoolean(KEY_TUTORIAL_SHOWN, false);
+    }
+
+    /**
+     * Marks the first launch as complete
+     */
+    public void setFirstLaunchComplete() {
+        SharedPreferences prefs = activity.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        prefs.edit().putBoolean(KEY_TUTORIAL_SHOWN, true).apply();
+    }
+
+    /**
      * Initiates the tutorial sequence by showing welcome message
      */
     public void startTutorial() {
@@ -80,30 +97,25 @@ public class TutorialHelper {
      * Handles different tutorial steps:
      * 1. Income feature
      * 2. Expense feature
-     * 3. Visualization feature
-     * 4. Theme customization
-     * 5. Notification settings
-     * 6. Data export feature
+     * 3. Theme customization
+     * 4. Notification settings
+     * 5. Data export feature
      */
     private void showNextTip() {
         switch (currentStep) {
             case 1:
-                highlightView(R.id.fabAddIncome, R.string.tutorial_income);
+                highlightView(R.id.incomeCard, R.string.tutorial_income);
                 break;
             case 2:
-                highlightView(R.id.fabAddExpense, R.string.tutorial_expense);
+                highlightView(R.id.expenseCard, R.string.tutorial_expense);
                 break;
             case 3:
-                // Use menu item for visualization instead of a card
-                showMenuTip(R.string.tutorial_visualization);
-                break;
-            case 4:
                 showMenuTip(R.string.tutorial_theme);
                 break;
-            case 5:
+            case 4:
                 showMenuTip(R.string.tutorial_notifications);
                 break;
-            case 6:
+            case 5:
                 showFinalTip();
                 break;
         }

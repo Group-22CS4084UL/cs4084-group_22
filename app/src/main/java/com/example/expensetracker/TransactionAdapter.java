@@ -19,6 +19,22 @@ import java.util.List;
  */
 public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.TransactionViewHolder> {
     private List<Transaction> transactions = new ArrayList<>();
+    private OnTransactionClickListener listener;
+
+    /**
+     * Interface for handling transaction click events
+     */
+    public interface OnTransactionClickListener {
+        void onTransactionClick(Transaction transaction);
+    }
+
+    /**
+     * Sets the transaction click listener
+     * @param listener Listener to handle click events
+     */
+    public void setOnTransactionClickListener(OnTransactionClickListener listener) {
+        this.listener = listener;
+    }
 
     /**
      * Updates the transaction list and refreshes the view
@@ -47,6 +63,13 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
     public void onBindViewHolder(@NonNull TransactionViewHolder holder, int position) {
         Transaction transaction = transactions.get(position);
         holder.bind(transaction);
+        
+        // Set click listener
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onTransactionClick(transaction);
+            }
+        });
     }
     
     @Override
@@ -91,14 +114,15 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
             transactionDescription.setText(transaction.getDescription());
             transactionDate.setText(transaction.getDate());
             
-            // Set amount with appropriate formatting
-            String amountText = String.format("%.2f", transaction.getAmount());
-            if (transaction.getAmount() >= 0) {
+            // Set amount with appropriate formatting and Euro symbol
+            double amount = transaction.getAmount();
+            String amountText = String.format("€%.2f", Math.abs(amount));
+            if (amount >= 0) {
                 transactionAmount.setTextColor(Color.GREEN);
                 transactionAmount.setText("+" + amountText);
             } else {
                 transactionAmount.setTextColor(Color.RED);
-                transactionAmount.setText(amountText);
+                transactionAmount.setText("-" + amountText);
             }
         }
     }

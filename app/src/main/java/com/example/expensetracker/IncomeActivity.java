@@ -17,18 +17,19 @@ public class IncomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityIncomeBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
-        // Set current date by default
-        binding.dateEditText.setText(getCurrentDate());
-
-        // Set up save button click listener
+        
+        // Set current date
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+        binding.dateEditText.setText(sdf.format(new Date()));
+        
+        // Set up save button
         binding.saveButton.setOnClickListener(v -> saveIncome());
     }
 
     private void saveIncome() {
-        String title = binding.titleEditText.getText().toString().trim();
-        String description = binding.descriptionEditText.getText().toString().trim();
-        String amountStr = binding.amountEditText.getText().toString().trim();
+        String title = binding.titleEditText.getText().toString();
+        String description = binding.descriptionEditText.getText().toString();
+        String amountStr = binding.amountEditText.getText().toString();
         String date = binding.dateEditText.getText().toString();
 
         if (title.isEmpty() || description.isEmpty() || amountStr.isEmpty() || date.isEmpty()) {
@@ -43,17 +44,19 @@ public class IncomeActivity extends AppCompatActivity {
                 return;
             }
 
-            Transaction transaction = new Transaction(title, description, amount, date);
-            // TODO: Save transaction to database
-            finish();
+            // Create and save transaction to database
+            DatabaseHelper dbHelper = new DatabaseHelper(this);
+            long result = dbHelper.addTransaction(amount, "income", title, description);
+            
+            if (result != -1) {
+                Toast.makeText(this, "Income saved successfully", Toast.LENGTH_SHORT).show();
+                finish();
+            } else {
+                Toast.makeText(this, "Failed to save income", Toast.LENGTH_SHORT).show();
+            }
         } catch (NumberFormatException e) {
             Toast.makeText(this, "Invalid amount", Toast.LENGTH_SHORT).show();
         }
-    }
-
-    private String getCurrentDate() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-        return dateFormat.format(new Date());
     }
 
     @Override

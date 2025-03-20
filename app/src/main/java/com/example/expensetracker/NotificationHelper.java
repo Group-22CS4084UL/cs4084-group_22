@@ -73,6 +73,15 @@ public class NotificationHelper extends BroadcastReceiver {
      */
     private void showNotification(Context context) {
         Log.d(TAG, "Showing notification now");
+        
+        // Check for notification permission on Android 13+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (context.checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                Log.e(TAG, "Notification permission not granted");
+                return;
+            }
+        }
+        
         Intent intent = new Intent(context, ExpenseActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         
@@ -109,6 +118,14 @@ public class NotificationHelper extends BroadcastReceiver {
         Log.d(TAG, "Showing welcome notification");
         createNotificationChannel(context);
 
+        // Check for notification permission on Android 13+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (context.checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                Log.e(TAG, "Notification permission not granted");
+                return;
+            }
+        }
+
         // Get financial data
         DatabaseHelper dbHelper = new DatabaseHelper(context);
         double totalIncome = dbHelper.getTotalIncome();
@@ -141,15 +158,6 @@ public class NotificationHelper extends BroadcastReceiver {
             PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT
         );
 
-        Intent visualizeIntent = new Intent(context, SpendingVisualizationActivity.class);
-        visualizeIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        PendingIntent visualizePendingIntent = PendingIntent.getActivity(
-            context,
-            2,
-            visualizeIntent,
-            PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT
-        );
-
         // Build enhanced notification
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
@@ -161,8 +169,7 @@ public class NotificationHelper extends BroadcastReceiver {
             .setVibrate(new long[]{0, 500, 200, 500})
             .setContentIntent(mainPendingIntent)
             // Add action buttons
-            .addAction(R.drawable.ic_launcher_foreground, "Add Income", incomePendingIntent)
-            .addAction(R.drawable.ic_launcher_foreground, "View Stats", visualizePendingIntent);
+            .addAction(R.drawable.ic_launcher_foreground, "Add Income", incomePendingIntent);
 
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
         try {

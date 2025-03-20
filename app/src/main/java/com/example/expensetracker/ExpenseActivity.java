@@ -41,11 +41,16 @@ public class ExpenseActivity extends AppCompatActivity {
                 return;
             }
 
-            // Create transaction with negative amount for expense
-            Transaction transaction = new Transaction(title, description, -amount, date);
-            // TODO: Save transaction to database
+            // Create and save transaction to database with negative amount for expense
+            DatabaseHelper dbHelper = new DatabaseHelper(this);
+            long result = dbHelper.addTransaction(-amount, "expense", title, description);
             
-            finish();
+            if (result != -1) {
+                Toast.makeText(this, "Expense saved successfully", Toast.LENGTH_SHORT).show();
+                finish();
+            } else {
+                Toast.makeText(this, "Failed to save expense", Toast.LENGTH_SHORT).show();
+            }
         } catch (NumberFormatException e) {
             Toast.makeText(this, "Invalid amount", Toast.LENGTH_SHORT).show();
         }
