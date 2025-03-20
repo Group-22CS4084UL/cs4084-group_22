@@ -5,5 +5,16 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        
+        <!-- Text colors -->
+        <item name="android:textColorPrimary">@color/text_primary_dark</item>
+        <item name="android:textColorSecondary">@color/text_secondary_dark</item>
+        
+        <!-- Background colors -->
+        <item name="android:colorBackground">@color/background_dark</item>
+        <item name="android:windowBackground">@color/background_dark</item>
+        
+        <!-- Card and surface colors -->
+        <item name="colorSurface">@color/card_background_dark</item>
     </style>
 </resources>
