@@ -1,8 +1,14 @@
 package com.example.expensetracker;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.widget.Toast;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import com.example.expensetracker.databinding.ActivitySpendingVisualizationBinding;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
@@ -16,6 +22,8 @@ import java.util.stream.Collectors;
 public class SpendingVisualizationActivity extends AppCompatActivity {
     private ActivitySpendingVisualizationBinding binding;
     private List<Transaction> transactions;
+    private DatabaseHelper databaseHelper;
+    private static final int STORAGE_PERMISSION_CODE = 101;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,9 +31,54 @@ public class SpendingVisualizationActivity extends AppCompatActivity {
         binding = ActivitySpendingVisualizationBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        databaseHelper = new DatabaseHelper(this);
+        
         setupActionBar();
         setupPieChart();
         loadTransactions();
+        setupExportButton();
+    }
+
+    private void setupExportButton() {
+        binding.exportButton.setOnClickListener(v -> {
+            if (checkStoragePermission()) {
+                exportTransactions();
+            } else {
+                requestStoragePermission();
+            }
+        });
+    }
+
+    private boolean checkStoragePermission() {
+        return ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private void requestStoragePermission() {
+        ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                STORAGE_PERMISSION_CODE);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == STORAGE_PERMISSION_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                exportTransactions();
+            } else {
+                Toast.makeText(this, "Storage permission is required to export data", Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
+    private void exportTransactions() {
+        String filePath = databaseHelper.exportToCSV(this);
+        if (filePath != null) {
+            Toast.makeText(this, "Transactions exported to: " + filePath, Toast.LENGTH_LONG).show();
+        } else {
+            Toast.makeText(this, "Failed to export transactions or no data to export", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void setupActionBar() {
