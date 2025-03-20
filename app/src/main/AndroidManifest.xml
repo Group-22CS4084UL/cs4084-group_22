@@ -33,12 +33,6 @@
             android:parentActivityName=".MainActivity" />
 
         <activity
-            android:name=".SpendingVisualizationActivity"
-            android:exported="false"
-            android:label="Spending Analysis"
-            android:parentActivityName=".MainActivity" />
-
-        <activity
             android:name=".TransactionListActivity"
             android:exported="false"
             android:label="Transaction History"

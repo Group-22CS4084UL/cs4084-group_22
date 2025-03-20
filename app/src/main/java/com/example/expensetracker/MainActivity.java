@@ -21,7 +21,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
     // UI Elements
     private TextView totalBalanceText, totalIncomeText, totalExpenseText;
-    private MaterialCardView incomeCard, expenseCard, visualizeCard;
+    private MaterialCardView incomeCard, expenseCard;
     private MaterialCardView darkModeCard, exportCard;
     private MaterialCardView historyCard, incomeHistoryCard, expenseHistoryCard;
     
@@ -51,7 +51,6 @@ public class MainActivity extends AppCompatActivity {
         
         incomeCard = findViewById(R.id.incomeCard);
         expenseCard = findViewById(R.id.expenseCard);
-        visualizeCard = findViewById(R.id.visualizeCard);
         darkModeCard = findViewById(R.id.darkModeCard);
         exportCard = findViewById(R.id.exportCard);
         historyCard = findViewById(R.id.historyCard);
@@ -82,11 +81,6 @@ public class MainActivity extends AppCompatActivity {
         
         expenseCard.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, ExpenseActivity.class);
-            startActivity(intent);
-        });
-        
-        visualizeCard.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, SpendingVisualizationActivity.class);
             startActivity(intent);
         });
         

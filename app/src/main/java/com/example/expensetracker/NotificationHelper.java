@@ -141,15 +141,6 @@ public class NotificationHelper extends BroadcastReceiver {
             PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT
         );
 
-        Intent visualizeIntent = new Intent(context, SpendingVisualizationActivity.class);
-        visualizeIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        PendingIntent visualizePendingIntent = PendingIntent.getActivity(
-            context,
-            2,
-            visualizeIntent,
-            PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT
-        );
-
         // Build enhanced notification
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
@@ -161,8 +152,7 @@ public class NotificationHelper extends BroadcastReceiver {
             .setVibrate(new long[]{0, 500, 200, 500})
             .setContentIntent(mainPendingIntent)
             // Add action buttons
-            .addAction(R.drawable.ic_launcher_foreground, "Add Income", incomePendingIntent)
-            .addAction(R.drawable.ic_launcher_foreground, "View Stats", visualizePendingIntent);
+            .addAction(R.drawable.ic_launcher_foreground, "Add Income", incomePendingIntent);
 
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
         try {
