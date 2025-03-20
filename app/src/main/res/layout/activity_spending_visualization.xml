@@ -68,6 +68,17 @@
 
         </androidx.cardview.widget.CardView>
 
+        <Button
+            android:id="@+id/exportButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Export Transactions"
+            android:textAllCaps="false"
+            android:padding="12dp"
+            android:background="@color/colorPrimary"
+            android:textColor="@android:color/white" />
+
     </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
