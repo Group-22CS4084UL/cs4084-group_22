@@ -79,18 +79,45 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      * @return Row ID of the newly inserted transaction, or -1 if error
      */
     public long addTransaction(double amount, String type, String category, String note) {
+        // Call the overloaded method with the current date
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.UK);
+        String currentDate = dateFormat.format(new Date());
+        return addTransaction(amount, type, category, note, currentDate);
+    }
+    
+    /**
+     * Adds a new transaction to the database with a specific date
+     * @param amount Transaction amount
+     * @param type Transaction type ('income' or 'expense')
+     * @param category Transaction category
+     * @param note Optional note
+     * @param date Transaction date in format yyyy-MM-dd
+     * @return Row ID of the newly inserted transaction, or -1 if error
+     */
+    public long addTransaction(double amount, String type, String category, String note, String date) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         
-        // Get current date in Irish format (dd/MM/yyyy)
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.UK);
-        String currentDate = dateFormat.format(new Date());
+        // Convert date format from yyyy-MM-dd to dd/MM/yyyy if needed
+        String formattedDate = date;
+        if (date != null && date.matches("\\d{4}-\\d{2}-\\d{2}")) {
+            try {
+                SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.UK);
+                SimpleDateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.UK);
+                Date parsedDate = inputFormat.parse(date);
+                if (parsedDate != null) {
+                    formattedDate = outputFormat.format(parsedDate);
+                }
+            } catch (Exception e) {
+                Log.e("DatabaseHelper", "Error parsing date: " + e.getMessage());
+            }
+        }
         
         // Prepare values for insertion
         values.put(COLUMN_AMOUNT, amount);
         values.put(COLUMN_TYPE, type);
         values.put(COLUMN_CATEGORY, category);
-        values.put(COLUMN_DATE, currentDate);
+        values.put(COLUMN_DATE, formattedDate);
         values.put(COLUMN_NOTE, note);
         
         return db.insert(TABLE_TRANSACTIONS, null, values);
