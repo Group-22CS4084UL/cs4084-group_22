@@ -5,6 +5,7 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorOnSurface">@color/text_primary_light</item>
         
         <!-- Text colors -->
         <item name="android:textColorPrimary">@color/text_primary_light</item>
@@ -20,7 +21,14 @@
 
     <style name="Theme.Learning" parent="Base.Theme.Learning" />
 
-    <style name="Theme.Learning.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+    <style name="Theme.Learning.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="android:textColorPrimary">@color/white</item>
+    </style>
 
-    <style name="Theme.Learning.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+    <style name="Theme.Learning.PopupOverlay" parent="ThemeOverlay.AppCompat.Light">
+        <item name="android:textColorPrimary">@color/text_primary_light</item>
+        <item name="android:textColorSecondary">@color/text_secondary_light</item>
+    </style>
 </resources>
