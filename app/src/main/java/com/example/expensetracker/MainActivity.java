@@ -72,6 +72,8 @@ public class MainActivity extends AppCompatActivity {
                 if (isGranted) {
                     // Permission granted, can show notifications
                     Toast.makeText(this, "Notification permission granted", Toast.LENGTH_SHORT).show();
+                    // Show tutorial after permission is granted
+                    checkAndShowTutorial();
                 } else {
                     // Permission denied
                     Toast.makeText(this, "Notification permission denied", Toast.LENGTH_SHORT).show();
@@ -87,9 +89,6 @@ public class MainActivity extends AppCompatActivity {
         
         // Load financial data
         updateFinancialSummary();
-        
-        // Show tutorial if first launch
-        checkAndShowTutorial();
     }
     
     @Override
@@ -197,7 +196,13 @@ public class MainActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
                 requestPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS);
+            } else {
+                // Permission already granted, show tutorial
+                checkAndShowTutorial();
             }
+        } else {
+            // For Android versions below 13, no permission needed, show tutorial
+            checkAndShowTutorial();
         }
     }
     
