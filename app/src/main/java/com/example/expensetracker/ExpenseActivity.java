@@ -1,15 +1,19 @@
 package com.example.expensetracker;
 
+import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.expensetracker.databinding.ActivityExpenseBinding;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
 public class ExpenseActivity extends AppCompatActivity {
     private ActivityExpenseBinding binding;
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+    private Calendar selectedDate = Calendar.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,9 +22,32 @@ public class ExpenseActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         // Set default date
-        binding.dateEditText.setText(getCurrentDate());
+        updateDateDisplay();
+        
+        // Set up date picker dialog
+        binding.dateEditText.setOnClickListener(v -> showDatePickerDialog());
 
         binding.saveButton.setOnClickListener(v -> saveExpense());
+    }
+
+    private void showDatePickerDialog() {
+        DatePickerDialog datePickerDialog = new DatePickerDialog(
+                this,
+                (view, year, month, dayOfMonth) -> {
+                    selectedDate.set(Calendar.YEAR, year);
+                    selectedDate.set(Calendar.MONTH, month);
+                    selectedDate.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                    updateDateDisplay();
+                },
+                selectedDate.get(Calendar.YEAR),
+                selectedDate.get(Calendar.MONTH),
+                selectedDate.get(Calendar.DAY_OF_MONTH)
+        );
+        datePickerDialog.show();
+    }
+    
+    private void updateDateDisplay() {
+        binding.dateEditText.setText(dateFormat.format(selectedDate.getTime()));
     }
 
     private void saveExpense() {
@@ -56,8 +83,4 @@ public class ExpenseActivity extends AppCompatActivity {
         }
     }
 
-    private String getCurrentDate() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-        return dateFormat.format(new Date());
-    }
 }

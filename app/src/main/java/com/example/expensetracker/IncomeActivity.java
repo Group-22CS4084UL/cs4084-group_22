@@ -1,16 +1,20 @@
 package com.example.expensetracker;
 
+import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.expensetracker.databinding.ActivityIncomeBinding;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
 public class IncomeActivity extends AppCompatActivity {
     private ActivityIncomeBinding binding;
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+    private Calendar selectedDate = Calendar.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -19,11 +23,33 @@ public class IncomeActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         
         // Set current date
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-        binding.dateEditText.setText(sdf.format(new Date()));
+        updateDateDisplay();
+        
+        // Set up date picker dialog
+        binding.dateEditText.setOnClickListener(v -> showDatePickerDialog());
         
         // Set up save button
         binding.saveButton.setOnClickListener(v -> saveIncome());
+    }
+
+    private void showDatePickerDialog() {
+        DatePickerDialog datePickerDialog = new DatePickerDialog(
+                this,
+                (view, year, month, dayOfMonth) -> {
+                    selectedDate.set(Calendar.YEAR, year);
+                    selectedDate.set(Calendar.MONTH, month);
+                    selectedDate.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                    updateDateDisplay();
+                },
+                selectedDate.get(Calendar.YEAR),
+                selectedDate.get(Calendar.MONTH),
+                selectedDate.get(Calendar.DAY_OF_MONTH)
+        );
+        datePickerDialog.show();
+    }
+    
+    private void updateDateDisplay() {
+        binding.dateEditText.setText(dateFormat.format(selectedDate.getTime()));
     }
 
     private void saveIncome() {
