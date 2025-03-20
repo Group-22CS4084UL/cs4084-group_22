@@ -38,6 +38,18 @@
             android:label="Spending Analysis"
             android:parentActivityName=".MainActivity" />
 
+        <activity
+            android:name=".TransactionListActivity"
+            android:exported="false"
+            android:label="Transaction History"
+            android:parentActivityName=".MainActivity" />
+
+        <activity
+            android:name=".TransactionEditActivity"
+            android:exported="false"
+            android:label="Edit Transaction"
+            android:parentActivityName=".TransactionListActivity" />
+
     </application>
 
 </manifest>

@@ -16,11 +16,14 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.material.card.MaterialCardView;
 
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity {
     // UI Elements
     private TextView totalBalanceText, totalIncomeText, totalExpenseText;
     private MaterialCardView incomeCard, expenseCard, visualizeCard;
     private MaterialCardView darkModeCard, exportCard;
+    private MaterialCardView historyCard, incomeHistoryCard, expenseHistoryCard;
     
     // Database helper instance
     private DatabaseHelper dbHelper;
@@ -51,6 +54,9 @@ public class MainActivity extends AppCompatActivity {
         visualizeCard = findViewById(R.id.visualizeCard);
         darkModeCard = findViewById(R.id.darkModeCard);
         exportCard = findViewById(R.id.exportCard);
+        historyCard = findViewById(R.id.historyCard);
+        incomeHistoryCard = findViewById(R.id.incomeHistoryCard);
+        expenseHistoryCard = findViewById(R.id.expenseHistoryCard);
         
         // Set up click listeners
         setupClickListeners();
@@ -87,24 +93,53 @@ public class MainActivity extends AppCompatActivity {
         darkModeCard.setOnClickListener(v -> toggleDarkMode());
         
         exportCard.setOnClickListener(v -> exportData());
+        
+        // Add listeners for transaction history cards
+        historyCard.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, TransactionListActivity.class);
+            intent.putExtra("transaction_type", "all");
+            startActivity(intent);
+        });
+        
+        incomeHistoryCard.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, TransactionListActivity.class);
+            intent.putExtra("transaction_type", "income");
+            startActivity(intent);
+        });
+        
+        expenseHistoryCard.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, TransactionListActivity.class);
+            intent.putExtra("transaction_type", "expense");
+            startActivity(intent);
+        });
     }
     
     private void updateFinancialSummary() {
-        double totalIncome = dbHelper.getTotalIncome();
-        double totalExpense = dbHelper.getTotalExpense();
-        double balance = totalIncome - totalExpense;
+        double balance = dbHelper.getTotalBalance();
+        double totalIncome = 0;
+        double totalExpense = 0;
         
-        totalBalanceText.setText(String.format("$%.2f", balance));
-        totalIncomeText.setText(String.format("$%.2f", totalIncome));
-        totalExpenseText.setText(String.format("$%.2f", totalExpense));
+        // Get all transactions to calculate income and expense totals
+        List<Transaction> transactions = dbHelper.getAllTransactions();
+        for (Transaction transaction : transactions) {
+            if (transaction.getAmount() >= 0) {
+                totalIncome += transaction.getAmount();
+            } else {
+                totalExpense += Math.abs(transaction.getAmount());
+            }
+        }
+        
+        // Format with Euro symbol
+        totalBalanceText.setText(String.format("€%.2f", balance));
+        totalIncomeText.setText(String.format("€%.2f", totalIncome));
+        totalExpenseText.setText(String.format("€%.2f", totalExpense));
     }
     
     private void toggleDarkMode() {
-        // Get current mode
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         boolean isDarkMode = prefs.getBoolean(DARK_MODE_KEY, false);
         
-        // Toggle mode
+        // Toggle dark mode
         isDarkMode = !isDarkMode;
         
         // Save preference
@@ -112,53 +147,45 @@ public class MainActivity extends AppCompatActivity {
         editor.putBoolean(DARK_MODE_KEY, isDarkMode);
         editor.apply();
         
-        // Apply mode
+        // Apply theme
         if (isDarkMode) {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-            Toast.makeText(this, "Dark mode enabled", Toast.LENGTH_SHORT).show();
         } else {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-            Toast.makeText(this, "Light mode enabled", Toast.LENGTH_SHORT).show();
         }
+        
+        // Recreate activity to apply theme
+        recreate();
     }
     
     private void exportData() {
-        try {
-            String filePath = dbHelper.exportToCSV(this);
-            if (filePath != null) {
-                Toast.makeText(this, "Data exported to: " + filePath, Toast.LENGTH_LONG).show();
-            } else {
-                Toast.makeText(this, "No data to export", Toast.LENGTH_SHORT).show();
-            }
-        } catch (Exception e) {
-            Toast.makeText(this, "Export failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        boolean success = dbHelper.exportToCSV();
+        if (success) {
+            Toast.makeText(this, "Data exported successfully", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "Failed to export data", Toast.LENGTH_SHORT).show();
         }
     }
     
     private void checkAndShowTutorial() {
         TutorialHelper tutorialHelper = new TutorialHelper(this);
         if (tutorialHelper.isFirstLaunch()) {
-            Toast.makeText(this, "Welcome to Expense Tracker! Tap on cards to manage your finances.", Toast.LENGTH_LONG).show();
-            tutorialHelper.setFirstLaunchComplete();
+            tutorialHelper.startTutorial();
         }
     }
-
+    
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
-
+    
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
         
-        if (id == R.id.action_view_spending) {
-            Intent intent = new Intent(MainActivity.this, SpendingVisualizationActivity.class);
-            startActivity(intent);
-            return true;
-        } else if (id == R.id.action_settings) {
-            Toast.makeText(this, "Settings not implemented yet", Toast.LENGTH_SHORT).show();
+        if (id == R.id.action_settings) {
+            // Open settings
             return true;
         }
         

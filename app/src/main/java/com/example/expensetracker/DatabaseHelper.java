@@ -44,7 +44,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + COLUMN_AMOUNT + " REAL,"                          // Transaction amount
             + COLUMN_TYPE + " TEXT,"                            // 'income' or 'expense'
             + COLUMN_CATEGORY + " TEXT,"                        // Transaction category
-            + COLUMN_DATE + " INTEGER,"                         // Timestamp in milliseconds
+            + COLUMN_DATE + " TEXT,"                            // Date in dd/MM/yyyy format
             + COLUMN_NOTE + " TEXT"                            // Optional note
             + ")";
 
@@ -82,11 +82,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         
+        // Get current date in Irish format (dd/MM/yyyy)
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.UK);
+        String currentDate = dateFormat.format(new Date());
+        
         // Prepare values for insertion
         values.put(COLUMN_AMOUNT, amount);
         values.put(COLUMN_TYPE, type);
         values.put(COLUMN_CATEGORY, category);
-        values.put(COLUMN_DATE, System.currentTimeMillis());  // Current timestamp
+        values.put(COLUMN_DATE, currentDate);
         values.put(COLUMN_NOTE, note);
         
         return db.insert(TABLE_TRANSACTIONS, null, values);
@@ -95,184 +99,147 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     /**
      * Deletes a transaction from the database
      * @param id ID of the transaction to delete
+     * @return true if successful, false otherwise
      */
-    public void deleteTransaction(long id) {
+    public boolean deleteTransaction(long id) {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_TRANSACTIONS, COLUMN_ID + " = ?",
-                new String[]{String.valueOf(id)});
+        return db.delete(TABLE_TRANSACTIONS, COLUMN_ID + " = ?",
+                new String[]{String.valueOf(id)}) > 0;
     }
-
+    
     /**
-     * Updates an existing transaction
-     * @param id ID of the transaction to update
+     * Updates an existing transaction in the database
+     * @param id Transaction ID
      * @param amount New amount
-     * @param type New type
+     * @param type New type ('income' or 'expense')
      * @param category New category
      * @param note New note
-     * @return Number of rows affected (should be 1 if successful)
+     * @param date New date
+     * @return true if successful, false otherwise
      */
-    public int updateTransaction(long id, double amount, String type, String category, String note) {
+    public boolean updateTransaction(long id, double amount, String type, String category, String note, String date) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         
+        // Prepare updated values
         values.put(COLUMN_AMOUNT, amount);
         values.put(COLUMN_TYPE, type);
         values.put(COLUMN_CATEGORY, category);
+        values.put(COLUMN_DATE, date);
         values.put(COLUMN_NOTE, note);
         
-        return db.update(TABLE_TRANSACTIONS, values,
-                COLUMN_ID + " = ?",
-                new String[]{String.valueOf(id)});
+        return db.update(TABLE_TRANSACTIONS, values, COLUMN_ID + " = ?",
+                new String[]{String.valueOf(id)}) > 0;
     }
-
+    
+    /**
+     * Gets a transaction by its ID
+     * @param id Transaction ID
+     * @return Transaction object, or null if not found
+     */
+    public Transaction getTransactionById(long id) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_TRANSACTIONS, null, COLUMN_ID + " = ?",
+                new String[]{String.valueOf(id)}, null, null, null);
+        
+        Transaction transaction = null;
+        if (cursor != null && cursor.moveToFirst()) {
+            transaction = cursorToTransaction(cursor);
+            cursor.close();
+        }
+        
+        return transaction;
+    }
+    
     /**
      * Gets all transactions from the database
-     * @return List of Transaction objects
+     * @return List of all transactions
      */
     public List<Transaction> getAllTransactions() {
         List<Transaction> transactions = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
         
-        String[] columns = {
-            COLUMN_ID,
-            COLUMN_AMOUNT,
-            COLUMN_TYPE,
-            COLUMN_CATEGORY,
-            COLUMN_DATE,
-            COLUMN_NOTE
-        };
-        
-        Cursor cursor = db.query(TABLE_TRANSACTIONS, columns, null, null, null, null, COLUMN_DATE + " DESC");
+        // Query all transactions, ordered by date (newest first)
+        Cursor cursor = db.query(TABLE_TRANSACTIONS, null, null, null, null, null,
+                COLUMN_DATE + " DESC");
         
         if (cursor != null && cursor.moveToFirst()) {
             do {
-                int idIndex = cursor.getColumnIndex(COLUMN_ID);
-                int noteIndex = cursor.getColumnIndex(COLUMN_NOTE);
-                int categoryIndex = cursor.getColumnIndex(COLUMN_CATEGORY);
-                int amountIndex = cursor.getColumnIndex(COLUMN_AMOUNT);
-                int dateIndex = cursor.getColumnIndex(COLUMN_DATE);
-                
-                // Only proceed if all required columns are found
-                if (idIndex >= 0 && categoryIndex >= 0 && amountIndex >= 0 && dateIndex >= 0) {
-                    String note = noteIndex >= 0 ? cursor.getString(noteIndex) : "";
-                    Transaction transaction = new Transaction(
-                        note,
-                        cursor.getString(categoryIndex),
-                        cursor.getDouble(amountIndex),
-                        formatDate(cursor.getLong(dateIndex))
-                    );
-                    transaction.setId(cursor.getLong(idIndex));
-                    transactions.add(transaction);
-                }
+                transactions.add(cursorToTransaction(cursor));
             } while (cursor.moveToNext());
             cursor.close();
         }
         
         return transactions;
     }
-
+    
+    /**
+     * Gets transactions of a specific type ('income' or 'expense')
+     * @param type Transaction type
+     * @return List of transactions of the specified type
+     */
+    public List<Transaction> getTransactionsByType(String type) {
+        List<Transaction> transactions = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        
+        // Query transactions by type, ordered by date (newest first)
+        Cursor cursor = db.query(TABLE_TRANSACTIONS, null, COLUMN_TYPE + " = ?",
+                new String[]{type}, null, null, COLUMN_DATE + " DESC");
+        
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                transactions.add(cursorToTransaction(cursor));
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        
+        return transactions;
+    }
+    
+    /**
+     * Helper method to convert a cursor to a Transaction object
+     * @param cursor Database cursor positioned at a transaction record
+     * @return Transaction object
+     */
+    private Transaction cursorToTransaction(Cursor cursor) {
+        long id = cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_ID));
+        double amount = cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_AMOUNT));
+        String type = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TYPE));
+        String category = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_CATEGORY));
+        String date = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_DATE));
+        String note = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_NOTE));
+        
+        return new Transaction(id, amount, type, category, date, note);
+    }
+    
     /**
      * Gets the total balance (income - expenses)
-     * @return Current balance
+     * @return Total balance
      */
-    public double getBalance() {
+    public double getTotalBalance() {
         SQLiteDatabase db = this.getReadableDatabase();
-        double balance = 0;
+        double totalIncome = 0;
+        double totalExpense = 0;
         
-        String query = "SELECT SUM(CASE WHEN type = 'income' THEN amount ELSE -amount END) FROM " + TABLE_TRANSACTIONS;
-        Cursor cursor = db.rawQuery(query, null);
-        
-        if (cursor != null && cursor.moveToFirst()) {
-            balance = cursor.getDouble(0);
-            cursor.close();
+        // Get total income
+        Cursor incomeCursor = db.rawQuery(
+                "SELECT SUM(" + COLUMN_AMOUNT + ") FROM " + TABLE_TRANSACTIONS +
+                        " WHERE " + COLUMN_TYPE + " = ?", new String[]{"income"});
+        if (incomeCursor != null && incomeCursor.moveToFirst()) {
+            totalIncome = incomeCursor.getDouble(0);
+            incomeCursor.close();
         }
         
-        return balance;
-    }
-
-    /**
-     * Gets transactions within a date range
-     * @param startDate Start date in milliseconds
-     * @param endDate End date in milliseconds
-     * @return List of transactions within the range
-     */
-    public List<Transaction> getTransactionsByDateRange(long startDate, long endDate) {
-        List<Transaction> transactions = new ArrayList<>();
-        SQLiteDatabase db = this.getReadableDatabase();
-        
-        String selection = COLUMN_DATE + " BETWEEN ? AND ?";
-        String[] selectionArgs = {String.valueOf(startDate), String.valueOf(endDate)};
-        
-        Cursor cursor = db.query(TABLE_TRANSACTIONS, null, selection, selectionArgs,
-                null, null, COLUMN_DATE + " DESC");
-        
-        if (cursor != null && cursor.moveToFirst()) {
-            do {
-                int idIndex = cursor.getColumnIndex(COLUMN_ID);
-                int noteIndex = cursor.getColumnIndex(COLUMN_NOTE);
-                int categoryIndex = cursor.getColumnIndex(COLUMN_CATEGORY);
-                int amountIndex = cursor.getColumnIndex(COLUMN_AMOUNT);
-                int dateIndex = cursor.getColumnIndex(COLUMN_DATE);
-                
-                // Only proceed if all required columns are found
-                if (idIndex >= 0 && categoryIndex >= 0 && amountIndex >= 0 && dateIndex >= 0) {
-                    String note = noteIndex >= 0 ? cursor.getString(noteIndex) : "";
-                    Transaction transaction = new Transaction(
-                        note,
-                        cursor.getString(categoryIndex),
-                        cursor.getDouble(amountIndex),
-                        formatDate(cursor.getLong(dateIndex))
-                    );
-                    transaction.setId(cursor.getLong(idIndex));
-                    transactions.add(transaction);
-                }
-            } while (cursor.moveToNext());
-            cursor.close();
+        // Get total expense
+        Cursor expenseCursor = db.rawQuery(
+                "SELECT SUM(" + COLUMN_AMOUNT + ") FROM " + TABLE_TRANSACTIONS +
+                        " WHERE " + COLUMN_TYPE + " = ?", new String[]{"expense"});
+        if (expenseCursor != null && expenseCursor.moveToFirst()) {
+            totalExpense = expenseCursor.getDouble(0);
+            expenseCursor.close();
         }
         
-        return transactions;
-    }
-
-    /**
-     * Gets transactions by category
-     * @param category Category to filter by
-     * @return List of transactions in the category
-     */
-    public List<Transaction> getTransactionsByCategory(String category) {
-        List<Transaction> transactions = new ArrayList<>();
-        SQLiteDatabase db = this.getReadableDatabase();
-        
-        String selection = COLUMN_CATEGORY + " = ?";
-        String[] selectionArgs = {category};
-        
-        Cursor cursor = db.query(TABLE_TRANSACTIONS, null, selection, selectionArgs,
-                null, null, COLUMN_DATE + " DESC");
-        
-        if (cursor != null && cursor.moveToFirst()) {
-            do {
-                int idIndex = cursor.getColumnIndex(COLUMN_ID);
-                int noteIndex = cursor.getColumnIndex(COLUMN_NOTE);
-                int categoryIndex = cursor.getColumnIndex(COLUMN_CATEGORY);
-                int amountIndex = cursor.getColumnIndex(COLUMN_AMOUNT);
-                int dateIndex = cursor.getColumnIndex(COLUMN_DATE);
-                
-                // Only proceed if all required columns are found
-                if (idIndex >= 0 && categoryIndex >= 0 && amountIndex >= 0 && dateIndex >= 0) {
-                    String note = noteIndex >= 0 ? cursor.getString(noteIndex) : "";
-                    Transaction transaction = new Transaction(
-                        note,
-                        cursor.getString(categoryIndex),
-                        cursor.getDouble(amountIndex),
-                        formatDate(cursor.getLong(dateIndex))
-                    );
-                    transaction.setId(cursor.getLong(idIndex));
-                    transactions.add(transaction);
-                }
-            } while (cursor.moveToNext());
-            cursor.close();
-        }
-        
-        return transactions;
+        return totalIncome - totalExpense;
     }
 
     /**
@@ -316,56 +283,97 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * Exports all transactions to a CSV file in the Downloads directory
-     * @param context Application context
-     * @return Path to the exported file, or null if export failed
+     * Exports all transactions to a CSV file
+     * @return true if export was successful, false otherwise
      */
-    public String exportToCSV(Context context) {
-        List<Transaction> transactions = getAllTransactions();
-        if (transactions.isEmpty()) {
-            return null;
-        }
-        
-        // Get the Downloads directory
-        java.io.File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-        if (!downloadsDir.exists()) {
-            downloadsDir.mkdirs();
-        }
-        
-        // Create a unique filename with timestamp
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault());
-        String timestamp = dateFormat.format(new Date());
-        String fileName = "expense_tracker_export_" + timestamp + ".csv";
-        java.io.File exportFile = new java.io.File(downloadsDir, fileName);
-        
+    public boolean exportToCSV() {
         try {
+            List<Transaction> transactions = getAllTransactions();
+            if (transactions.isEmpty()) {
+                return false;
+            }
+            
+            // Get the Downloads directory
+            java.io.File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+            if (!downloadsDir.exists()) {
+                downloadsDir.mkdirs();
+            }
+            
+            // Create a unique filename with timestamp
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault());
+            String timestamp = dateFormat.format(new Date());
+            String fileName = "expense_tracker_export_" + timestamp + ".csv";
+            java.io.File exportFile = new java.io.File(downloadsDir, fileName);
+            
             FileWriter fw = new FileWriter(exportFile);
             // Write CSV header
-            fw.append("ID,Category,Description,Amount,Date\n");
+            fw.append("ID,Type,Category,Amount,Date,Note\n");
             
             // Write transaction data
             for (Transaction transaction : transactions) {
                 fw.append(String.valueOf(transaction.getId())).append(",");
+                fw.append(transaction.getType()).append(",");
+                fw.append(transaction.getCategory()).append(",");
+                fw.append(String.format(Locale.UK, "€%.2f", transaction.getAmount())).append(",");
+                fw.append(transaction.getDate()).append(",");
                 
-                // Safely handle potentially null values
-                String category = transaction.getCategory();
-                if (category != null) {
-                    fw.append(category);
+                // Handle notes that might contain commas by enclosing in quotes
+                String note = transaction.getDescription();
+                if (note != null && !note.isEmpty()) {
+                    fw.append("\"").append(note.replace("\"", "\"\"")).append("\"");
                 }
-                fw.append(",");
+                fw.append("\n");
+            }
+            
+            fw.flush();
+            fw.close();
+            return true;
+        } catch (IOException e) {
+            Log.e("DatabaseHelper", "Error exporting data: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Exports all transactions to a CSV file
+     * @param context The context to use for file operations
+     * @return The path to the exported file, or null if export failed
+     */
+    public String exportToCSV(Context context) {
+        try {
+            List<Transaction> transactions = getAllTransactions();
+            if (transactions.isEmpty()) {
+                return null;
+            }
+            
+            // Get the Downloads directory
+            java.io.File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+            if (!downloadsDir.exists()) {
+                downloadsDir.mkdirs();
+            }
+            
+            // Create a unique filename with timestamp
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault());
+            String timestamp = dateFormat.format(new Date());
+            String fileName = "expense_tracker_export_" + timestamp + ".csv";
+            java.io.File exportFile = new java.io.File(downloadsDir, fileName);
+            
+            FileWriter fw = new FileWriter(exportFile);
+            // Write CSV header
+            fw.append("ID,Type,Category,Amount,Date,Note\n");
+            
+            // Write transaction data
+            for (Transaction transaction : transactions) {
+                fw.append(String.valueOf(transaction.getId())).append(",");
+                fw.append(transaction.getType()).append(",");
+                fw.append(transaction.getCategory()).append(",");
+                fw.append(String.format(Locale.UK, "€%.2f", transaction.getAmount())).append(",");
+                fw.append(transaction.getDate()).append(",");
                 
-                String description = transaction.getDescription();
-                if (description != null) {
-                    // Escape quotes in CSV by doubling them
-                    fw.append("\"").append(description.replace("\"", "\"\"")).append("\"");
-                }
-                fw.append(",");
-                
-                fw.append(String.valueOf(transaction.getAmount())).append(",");
-                
-                String date = transaction.getDate();
-                if (date != null) {
-                    fw.append(date);
+                // Handle notes that might contain commas by enclosing in quotes
+                String note = transaction.getDescription();
+                if (note != null && !note.isEmpty()) {
+                    fw.append("\"").append(note.replace("\"", "\"\"")).append("\"");
                 }
                 fw.append("\n");
             }
@@ -373,10 +381,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             fw.flush();
             fw.close();
             
-            // Make the file visible to Media Scanner
-            MediaScannerConnection.scanFile(context, 
-                    new String[]{exportFile.getAbsolutePath()}, 
-                    null, null);
+            // Notify the system about the new file so it shows up in file browsers
+            MediaScannerConnection.scanFile(context, new String[]{exportFile.getAbsolutePath()}, null, null);
             
             return exportFile.getAbsolutePath();
         } catch (IOException e) {
@@ -393,5 +399,90 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private String formatDate(long timestamp) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         return dateFormat.format(new Date(timestamp));
+    }
+
+    /**
+     * Gets transactions within a date range
+     * @param startDate Start date in milliseconds
+     * @param endDate End date in milliseconds
+     * @return List of transactions within the range
+     */
+    public List<Transaction> getTransactionsByDateRange(long startDate, long endDate) {
+        List<Transaction> transactions = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        
+        String selection = COLUMN_DATE + " BETWEEN ? AND ?";
+        String[] selectionArgs = {String.valueOf(startDate), String.valueOf(endDate)};
+        
+        Cursor cursor = db.query(TABLE_TRANSACTIONS, null, selection, selectionArgs,
+                null, null, COLUMN_DATE + " DESC");
+        
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                int idIndex = cursor.getColumnIndex(COLUMN_ID);
+                int noteIndex = cursor.getColumnIndex(COLUMN_NOTE);
+                int categoryIndex = cursor.getColumnIndex(COLUMN_CATEGORY);
+                int amountIndex = cursor.getColumnIndex(COLUMN_AMOUNT);
+                int dateIndex = cursor.getColumnIndex(COLUMN_DATE);
+                
+                // Only proceed if all required columns are found
+                if (idIndex >= 0 && categoryIndex >= 0 && amountIndex >= 0 && dateIndex >= 0) {
+                    String note = noteIndex >= 0 ? cursor.getString(noteIndex) : "";
+                    Transaction transaction = new Transaction(
+                        note,
+                        cursor.getString(categoryIndex),
+                        cursor.getDouble(amountIndex),
+                        cursor.getString(dateIndex)
+                    );
+                    transaction.setId(cursor.getLong(idIndex));
+                    transactions.add(transaction);
+                }
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        
+        return transactions;
+    }
+
+    /**
+     * Gets transactions by category
+     * @param category Category to filter by
+     * @return List of transactions in the category
+     */
+    public List<Transaction> getTransactionsByCategory(String category) {
+        List<Transaction> transactions = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        
+        String selection = COLUMN_CATEGORY + " = ?";
+        String[] selectionArgs = {category};
+        
+        Cursor cursor = db.query(TABLE_TRANSACTIONS, null, selection, selectionArgs,
+                null, null, COLUMN_DATE + " DESC");
+        
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                int idIndex = cursor.getColumnIndex(COLUMN_ID);
+                int noteIndex = cursor.getColumnIndex(COLUMN_NOTE);
+                int categoryIndex = cursor.getColumnIndex(COLUMN_CATEGORY);
+                int amountIndex = cursor.getColumnIndex(COLUMN_AMOUNT);
+                int dateIndex = cursor.getColumnIndex(COLUMN_DATE);
+                
+                // Only proceed if all required columns are found
+                if (idIndex >= 0 && categoryIndex >= 0 && amountIndex >= 0 && dateIndex >= 0) {
+                    String note = noteIndex >= 0 ? cursor.getString(noteIndex) : "";
+                    Transaction transaction = new Transaction(
+                        note,
+                        cursor.getString(categoryIndex),
+                        cursor.getDouble(amountIndex),
+                        cursor.getString(dateIndex)
+                    );
+                    transaction.setId(cursor.getLong(idIndex));
+                    transactions.add(transaction);
+                }
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        
+        return transactions;
     }
 }

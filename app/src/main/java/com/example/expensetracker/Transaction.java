@@ -7,6 +7,7 @@ public class Transaction {
     private double amount;
     private String date;
     private String category;
+    private String type; // "income" or "expense"
 
     public Transaction(String title, String description, double amount, String date) {
         this.title = title;
@@ -14,6 +15,7 @@ public class Transaction {
         this.amount = amount;
         this.date = date;
         this.category = amount >= 0 ? "Income" : "Expense";
+        this.type = amount >= 0 ? "income" : "expense";
     }
 
     public Transaction(String title, String description, double amount, String date, String category) {
@@ -22,6 +24,17 @@ public class Transaction {
         this.amount = amount;
         this.date = date;
         this.category = category;
+        this.type = amount >= 0 ? "income" : "expense";
+    }
+    
+    public Transaction(long id, double amount, String type, String category, String date, String description) {
+        this.id = id;
+        this.amount = amount;
+        this.type = type;
+        this.category = category;
+        this.date = date;
+        this.description = description;
+        this.title = category; // Use category as title for backward compatibility
     }
 
     public long getId() {
@@ -63,12 +76,20 @@ public class Transaction {
     public void setDate(String date) {
         this.date = date;
     }
-    
+
     public String getCategory() {
         return category;
     }
-    
+
     public void setCategory(String category) {
         this.category = category;
+    }
+    
+    public String getType() {
+        return type;
+    }
+    
+    public void setType(String type) {
+        this.type = type;
     }
 }
