@@ -82,4 +82,5 @@ public class ExpenseActivity extends AppCompatActivity {
             Toast.makeText(this, "Invalid amount", Toast.LENGTH_SHORT).show();
         }
     }
+
 }
