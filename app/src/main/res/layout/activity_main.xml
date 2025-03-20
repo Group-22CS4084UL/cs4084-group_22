@@ -152,7 +152,7 @@
                                 android:layout_width="28dp"
                                 android:layout_height="28dp"
                                 android:src="@android:drawable/arrow_up_float"
-                                android:tint="@android:color/holo_green_dark" />
+                                app:tint="@android:color/holo_green_dark" />
 
                             <TextView
                                 android:layout_width="wrap_content"
@@ -184,7 +184,7 @@
                                 android:layout_width="28dp"
                                 android:layout_height="28dp"
                                 android:src="@android:drawable/arrow_down_float"
-                                android:tint="@android:color/holo_red_dark" />
+                                app:tint="@android:color/holo_red_dark" />
 
                             <TextView
                                 android:layout_width="wrap_content"
@@ -223,7 +223,7 @@
                                 android:layout_width="28dp"
                                 android:layout_height="28dp"
                                 android:src="@android:drawable/ic_menu_day"
-                                android:tint="?attr/colorPrimary" />
+                                app:tint="?attr/colorPrimary" />
 
                             <TextView
                                 android:layout_width="wrap_content"
@@ -255,7 +255,7 @@
                                 android:layout_width="28dp"
                                 android:layout_height="28dp"
                                 android:src="@android:drawable/ic_menu_save"
-                                android:tint="?attr/colorPrimary" />
+                                app:tint="?attr/colorPrimary" />
 
                             <TextView
                                 android:layout_width="wrap_content"
@@ -297,7 +297,7 @@
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:src="@android:drawable/ic_menu_recent_history"
-                            android:tint="?attr/colorPrimary" />
+                            app:tint="?attr/colorPrimary" />
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -334,7 +334,7 @@
                                 android:layout_width="20dp"
                                 android:layout_height="20dp"
                                 android:src="@android:drawable/arrow_up_float"
-                                android:tint="@android:color/holo_green_dark" />
+                                app:tint="@android:color/holo_green_dark" />
 
                             <TextView
                                 android:layout_width="wrap_content"
@@ -365,7 +365,7 @@
                                 android:layout_width="20dp"
                                 android:layout_height="20dp"
                                 android:src="@android:drawable/arrow_down_float"
-                                android:tint="@android:color/holo_red_dark" />
+                                app:tint="@android:color/holo_red_dark" />
 
                             <TextView
                                 android:layout_width="wrap_content"

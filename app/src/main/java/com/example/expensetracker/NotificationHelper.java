@@ -73,6 +73,15 @@ public class NotificationHelper extends BroadcastReceiver {
      */
     private void showNotification(Context context) {
         Log.d(TAG, "Showing notification now");
+        
+        // Check for notification permission on Android 13+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (context.checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                Log.e(TAG, "Notification permission not granted");
+                return;
+            }
+        }
+        
         Intent intent = new Intent(context, ExpenseActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         
@@ -108,6 +117,14 @@ public class NotificationHelper extends BroadcastReceiver {
     public static void showWelcomeNotification(Context context) {
         Log.d(TAG, "Showing welcome notification");
         createNotificationChannel(context);
+
+        // Check for notification permission on Android 13+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (context.checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                Log.e(TAG, "Notification permission not granted");
+                return;
+            }
+        }
 
         // Get financial data
         DatabaseHelper dbHelper = new DatabaseHelper(context);

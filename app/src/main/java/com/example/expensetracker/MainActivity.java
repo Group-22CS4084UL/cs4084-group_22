@@ -3,16 +3,21 @@ package com.example.expensetracker;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.material.card.MaterialCardView;
 
@@ -31,6 +36,9 @@ public class MainActivity extends AppCompatActivity {
     // Constants for SharedPreferences
     private static final String PREFS_NAME = "ExpenseTrackerPrefs";
     private static final String DARK_MODE_KEY = "darkMode";
+    
+    // Permission request
+    private ActivityResultLauncher<String> requestPermissionLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +64,23 @@ public class MainActivity extends AppCompatActivity {
         historyCard = findViewById(R.id.historyCard);
         incomeHistoryCard = findViewById(R.id.incomeHistoryCard);
         expenseHistoryCard = findViewById(R.id.expenseHistoryCard);
+        
+        // Initialize permission launcher
+        requestPermissionLauncher = registerForActivityResult(
+            new ActivityResultContracts.RequestPermission(),
+            isGranted -> {
+                if (isGranted) {
+                    // Permission granted, can show notifications
+                    Toast.makeText(this, "Notification permission granted", Toast.LENGTH_SHORT).show();
+                } else {
+                    // Permission denied
+                    Toast.makeText(this, "Notification permission denied", Toast.LENGTH_SHORT).show();
+                }
+            }
+        );
+        
+        // Check and request notification permission
+        checkNotificationPermission();
         
         // Set up click listeners
         setupClickListeners();
@@ -165,6 +190,14 @@ public class MainActivity extends AppCompatActivity {
         TutorialHelper tutorialHelper = new TutorialHelper(this);
         if (tutorialHelper.isFirstLaunch()) {
             tutorialHelper.startTutorial();
+        }
+    }
+    
+    private void checkNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS);
+            }
         }
     }
     
