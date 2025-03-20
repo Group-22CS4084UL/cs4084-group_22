@@ -54,7 +54,7 @@ public class ExpenseActivity extends AppCompatActivity {
         String title = binding.titleEditText.getText().toString();
         String description = binding.descriptionEditText.getText().toString();
         String amountStr = binding.amountEditText.getText().toString();
-        String date = binding.dateEditText.getText().toString();
+        String date = dateFormat.format(selectedDate.getTime());
 
         if (title.isEmpty() || description.isEmpty() || amountStr.isEmpty() || date.isEmpty()) {
             Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
@@ -70,7 +70,7 @@ public class ExpenseActivity extends AppCompatActivity {
 
             // Create and save transaction to database with negative amount for expense
             DatabaseHelper dbHelper = new DatabaseHelper(this);
-            long result = dbHelper.addTransaction(-amount, "expense", title, description);
+            long result = dbHelper.addTransaction(-amount, "expense", title, description, date);
             
             if (result != -1) {
                 Toast.makeText(this, "Expense saved successfully", Toast.LENGTH_SHORT).show();
