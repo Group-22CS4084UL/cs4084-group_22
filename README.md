@@ -18,14 +18,14 @@ The features are categorised and listed as below:
   ![屏幕截图 2025-03-27 121542](https://github.com/user-attachments/assets/307f6c3a-a30f-4cdc-9edb-fd4d7302b252)
 
 - ExpenseActivity: Handles adding new expenses
-  ![image](https://github.com/user-attachments/assets/31bc4be7-42f1-40e0-8c39-2c27d1376bc2)
-
+  ![屏幕截图 2025-03-27 123334](https://github.com/user-attachments/assets/8b962f34-70b5-4700-9e45-84e4a73d222a)
 
 - IncomeActivity: Handles adding new income
   ![屏幕截图 2025-03-27 121918](https://github.com/user-attachments/assets/f565dd01-223d-4811-af02-5b3caaa320aa)
 
 - TransactionListActivity: Displays transaction history with filtering options
-  ![image](https://github.com/user-attachments/assets/11ae572f-89ac-468b-b0b1-a011e10e08c2)
+  ![屏幕截图 2025-03-27 122830](https://github.com/user-attachments/assets/af7361be-e394-40fa-ac0a-0cc53f52e434)
+
 
 - TransactionEditActivity: Allows editing existing transactions
   
