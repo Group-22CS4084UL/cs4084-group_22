@@ -18,7 +18,7 @@ The features are categorised and listed as below:
   ![屏幕截图 2025-03-27 121542](https://github.com/user-attachments/assets/307f6c3a-a30f-4cdc-9edb-fd4d7302b252)
 
 - ExpenseActivity: Handles adding new expenses
-  ![屏幕截图 2025-03-27 123334](https://github.com/user-attachments/assets/8b962f34-70b5-4700-9e45-84e4a73d222a)
+  ![屏幕截图 2025-03-27 122941](https://github.com/user-attachments/assets/2c638a5f-952e-4a59-a3b1-b383c5f816d0)
 
 - IncomeActivity: Handles adding new income
   ![屏幕截图 2025-03-27 121918](https://github.com/user-attachments/assets/f565dd01-223d-4811-af02-5b3caaa320aa)
