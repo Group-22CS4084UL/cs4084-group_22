@@ -26,9 +26,10 @@ The features are categorised and listed as below:
 - TransactionListActivity: Displays transaction history with filtering options
   ![屏幕截图 2025-03-27 122830](https://github.com/user-attachments/assets/af7361be-e394-40fa-ac0a-0cc53f52e434)
 
-
 - TransactionEditActivity: Allows editing existing transactions
-  
+  ![WhatsApp Image 2025-03-27 at 12 33 28](https://github.com/user-attachments/assets/d5193fa4-3c17-49c5-8c8f-7aa748ed4083)
+  ![WhatsApp Image 2025-03-27 at 12 33 55](https://github.com/user-attachments/assets/ba67326e-ce06-474f-98b1-e593ae06d132)
+
 2. Data Management
 - DatabaseHelper: SQLite database manager handling all CRUD operations
 - Transaction: Model class representing financial transactions
@@ -42,6 +43,7 @@ The features are categorised and listed as below:
   ![屏幕截图 2025-03-27 121256](https://github.com/user-attachments/assets/511ba2d6-763f-41c6-858b-6d798e11edf6)
 4. UI/UX features
 - Dark Mode
+  ![屏幕截图 2025-03-27 123743](https://github.com/user-attachments/assets/1ce9665b-081e-47bf-8ecd-5e26db52309d)
 
 Testing environment: Elsa (Yilin Wang) cloned the repository and used the Medium Phone emulator to test our project locally. 
 
