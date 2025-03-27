@@ -33,8 +33,7 @@ Testing environment: Elsa (Yilin Wang) cloned the repository and used the Medium
 
 ![image](https://github.com/user-attachments/assets/973aa60f-56d2-4b2c-8139-9c1347772580)
 
-
-
+Project Demo video:
 https://github.com/user-attachments/assets/839030f9-e7ab-4a1a-9e61-016aaba1f9f3
 
 
