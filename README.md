@@ -19,6 +19,8 @@ The features are categorised and listed as below:
 
 - ExpenseActivity: Handles adding new expenses
 - IncomeActivity: Handles adding new income
+  ![屏幕截图 2025-03-27 121918](https://github.com/user-attachments/assets/f565dd01-223d-4811-af02-5b3caaa320aa)
+
 - TransactionListActivity: Displays transaction history with filtering options
 - TransactionEditActivity: Allows editing existing transactions
 2. Data Management
