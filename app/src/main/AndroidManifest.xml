@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:allowBackup="true"
-        android:dataExtractionRules="@xml/data_extraction_rules"
-        android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.HelloWorld"
-        tools:targetApi="31">
+        android:theme="@style/Theme.Learning">
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -21,6 +21,30 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".IncomeActivity"
+            android:exported="false"
+            android:label="Add Income"
+            android:parentActivityName=".MainActivity" />
+
+        <activity
+            android:name=".ExpenseActivity"
+            android:exported="false"
+            android:label="Add Expense"
+            android:parentActivityName=".MainActivity" />
+
+        <activity
+            android:name=".TransactionListActivity"
+            android:exported="false"
+            android:label="Transaction History"
+            android:parentActivityName=".MainActivity" />
+
+        <activity
+            android:name=".TransactionEditActivity"
+            android:exported="false"
+            android:label="Edit Transaction"
+            android:parentActivityName=".TransactionListActivity" />
+
     </application>
 
 </manifest>

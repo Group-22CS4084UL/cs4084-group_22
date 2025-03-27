@@ -60,10 +60,10 @@
             android:clickable="true" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <com.google.android.material.button.MaterialButton
+    <Button
         android:id="@+id/saveButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Save Income" />
+        android:text="Save Expense" />
 
 </LinearLayout>
