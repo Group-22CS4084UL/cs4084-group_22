@@ -26,7 +26,7 @@ The features are categorised and listed as below:
 3. Utility Classes
 - NotificationHelper: Manages app notifications
 - TutorialHelper: Handles first-time user tutorial
-  ![屏幕截图 2024-11-25 191922](https://github.com/user-attachments/assets/e1a5ab40-e7f8-4297-973f-8e19b1ec2f98)
+![屏幕截图 2025-03-27 121256](https://github.com/user-attachments/assets/511ba2d6-763f-41c6-858b-6d798e11edf6)
 4. UI/UX features
 - Dark Mode
 
