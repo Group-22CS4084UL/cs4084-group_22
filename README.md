@@ -18,15 +18,22 @@ The features are categorised and listed as below:
   ![屏幕截图 2025-03-27 121542](https://github.com/user-attachments/assets/307f6c3a-a30f-4cdc-9edb-fd4d7302b252)
 
 - ExpenseActivity: Handles adding new expenses
+  ![屏幕截图 2025-03-27 122830](https://github.com/user-attachments/assets/3974573b-1428-4d73-8d0e-36c8ad04f71c)
+
 - IncomeActivity: Handles adding new income
   ![屏幕截图 2025-03-27 121918](https://github.com/user-attachments/assets/f565dd01-223d-4811-af02-5b3caaa320aa)
 
 - TransactionListActivity: Displays transaction history with filtering options
+  ![image](https://github.com/user-attachments/assets/11ae572f-89ac-468b-b0b1-a011e10e08c2)
+
 - TransactionEditActivity: Allows editing existing transactions
+  
+  
 2. Data Management
 - DatabaseHelper: SQLite database manager handling all CRUD operations
 - Transaction: Model class representing financial transactions
 - TransactionAdapter: RecyclerView adapter for displaying transaction lists
+  
 3. Utility Classes
 - NotificationHelper: Manages app notifications
   ![屏幕截图 2025-03-27 122049](https://github.com/user-attachments/assets/ff9c1beb-43e4-42dd-9e8d-27d5bebc9cd8)
