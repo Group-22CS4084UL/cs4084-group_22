@@ -29,8 +29,10 @@ The features are categorised and listed as below:
 - TransactionAdapter: RecyclerView adapter for displaying transaction lists
 3. Utility Classes
 - NotificationHelper: Manages app notifications
+  ![屏幕截图 2025-03-27 122049](https://github.com/user-attachments/assets/ff9c1beb-43e4-42dd-9e8d-27d5bebc9cd8)
+
 - TutorialHelper: Handles first-time user tutorial
-![屏幕截图 2025-03-27 121256](https://github.com/user-attachments/assets/511ba2d6-763f-41c6-858b-6d798e11edf6)
+  ![屏幕截图 2025-03-27 121256](https://github.com/user-attachments/assets/511ba2d6-763f-41c6-858b-6d798e11edf6)
 4. UI/UX features
 - Dark Mode
 
@@ -38,7 +40,7 @@ Testing environment: Elsa (Yilin Wang) cloned the repository and used the Medium
 
 ![image](https://github.com/user-attachments/assets/973aa60f-56d2-4b2c-8139-9c1347772580)
 
-
-https://github.com/user-attachments/assets/839030f9-e7ab-4a1a-9e61-016aaba1f9f3
+Project demo video:
+https://github.com/user-attachments/assets/9990d0dd-7ef5-4198-9522-07a09c92131d
 
 
