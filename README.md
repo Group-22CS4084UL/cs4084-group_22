@@ -26,3 +26,5 @@ The features are categorised and listed as below:
 3. Utility Classes
 - NotificationHelper: Manages app notifications
 - TutorialHelper: Handles first-time user tutorial
+
+![image](https://github.com/user-attachments/assets/973aa60f-56d2-4b2c-8139-9c1347772580)
