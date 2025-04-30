@@ -70,7 +70,7 @@ public class ExpenseActivity extends AppCompatActivity {
 
             // Create and save transaction to database with negative amount for expense
             DatabaseHelper dbHelper = new DatabaseHelper(this);
-            long result = dbHelper.addTransaction(-amount, "expense", title, description, date);
+            long result = dbHelper.addTransaction(amount, "expense", title, description, date);
             
             if (result != -1) {
                 Toast.makeText(this, "Expense saved successfully", Toast.LENGTH_SHORT).show();
