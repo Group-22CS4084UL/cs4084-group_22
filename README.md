@@ -46,7 +46,14 @@ The features are categorised and listed as below:
   ![屏幕截图 2025-03-27 123743](https://github.com/user-attachments/assets/1ce9665b-081e-47bf-8ecd-5e26db52309d)
 
 Testing environment: Elsa (Yilin Wang) cloned the repository and used the Medium Phone emulator to test our project locally. 
-
+The following parameters define the test environment:
+• Android studio version: Ladybug feature drop 2024.2.2
+• Compile SDK: 35
+• Min SDK: 24
+• Target SDK: 35
+• Java Version: 11
+• Gradle plugin version: 8.8
+• Gradle version: 8.10.2
 ![image](https://github.com/user-attachments/assets/973aa60f-56d2-4b2c-8139-9c1347772580)
 
 Project demo video:
