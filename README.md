@@ -51,7 +51,7 @@ The following parameters define the test environment:
 - Compile SDK: 35
 - Min SDK: 24
 - Target SDK: 35
-- Java Version: 11
+- Java Version: 17
 - Gradle plugin version: 8.8
 - Gradle version: 8.10.2
 ![image](https://github.com/user-attachments/assets/973aa60f-56d2-4b2c-8139-9c1347772580)
