@@ -39,6 +39,9 @@ public class MainActivity extends AppCompatActivity {
     
     // Permission request
     private ActivityResultLauncher<String> requestPermissionLauncher;
+    private String pendingPermission = null;
+    private boolean pendingExport = false;
+    private String lastExportedFilePath = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,13 +73,23 @@ public class MainActivity extends AppCompatActivity {
             new ActivityResultContracts.RequestPermission(),
             isGranted -> {
                 if (isGranted) {
-                    // Permission granted, can show notifications
-                    Toast.makeText(this, "Notification permission granted", Toast.LENGTH_SHORT).show();
-                    // Show tutorial after permission is granted
-                    checkAndShowTutorial();
+                    if ("android.permission.WRITE_EXTERNAL_STORAGE".equals(pendingPermission) && pendingExport) {
+                        // Permission granted for export, proceed
+                        exportDataInternal();
+                        pendingExport = false;
+                        pendingPermission = null;
+                    } else if ("android.permission.POST_NOTIFICATIONS".equals(pendingPermission)) {
+                        Toast.makeText(this, "Notification permission granted", Toast.LENGTH_SHORT).show();
+                        checkAndShowTutorial();
+                        pendingPermission = null;
+                    } else {
+                        Toast.makeText(this, "Permission granted", Toast.LENGTH_SHORT).show();
+                        pendingPermission = null;
+                    }
                 } else {
-                    // Permission denied
-                    Toast.makeText(this, "Notification permission denied", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT).show();
+                    pendingExport = false;
+                    pendingPermission = null;
                 }
             }
         );
@@ -177,14 +190,51 @@ public class MainActivity extends AppCompatActivity {
     }
     
     private void exportData() {
-        boolean success = dbHelper.exportToCSV();
-        if (success) {
-            Toast.makeText(this, "Data exported successfully", Toast.LENGTH_SHORT).show();
+        // For Android 6.0+ (API 23+), check WRITE_EXTERNAL_STORAGE permission at runtime
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                // Request permission
+                pendingPermission = "android.permission.WRITE_EXTERNAL_STORAGE";
+                pendingExport = true;
+                requestPermissionLauncher.launch(android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                Toast.makeText(this, "Storage permission required to export data", Toast.LENGTH_SHORT).show();
+                return;
+            }
+        }
+        exportDataInternal();
+    }
+
+    private void exportDataInternal() {
+        // Use the exportToCSV() that returns a boolean, but for file path, use exportToCSV(Context)
+        String exportedFilePath = dbHelper.exportToCSV(this);
+        if (exportedFilePath != null) {
+            lastExportedFilePath = exportedFilePath;
+            Toast.makeText(this, "Data exported to: " + exportedFilePath, Toast.LENGTH_LONG).show();
+            showShareDialog(exportedFilePath);
         } else {
             Toast.makeText(this, "Failed to export data", Toast.LENGTH_SHORT).show();
         }
     }
     
+    private void showShareDialog(String filePath) {
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Export Complete")
+                .setMessage("Data exported to:\n" + filePath + "\n\nWould you like to share the file?")
+                .setPositiveButton("Share", (dialog, which) -> shareExportedFile(filePath))
+                .setNegativeButton("Dismiss", null)
+                .show();
+    }
+
+    private void shareExportedFile(String filePath) {
+        java.io.File file = new java.io.File(filePath);
+        android.net.Uri uri = androidx.core.content.FileProvider.getUriForFile(this, getPackageName() + ".fileprovider", file);
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.setType("text/csv");
+        shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
+        shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        startActivity(Intent.createChooser(shareIntent, "Share exported CSV"));
+    }
+
     private void checkAndShowTutorial() {
         TutorialHelper tutorialHelper = new TutorialHelper(this);
         if (tutorialHelper.isFirstLaunch()) {
