@@ -15,7 +15,7 @@ The App follows a standard Android architecture with:
 The features are categorised and listed as below:
 1. Activities
 - MainActivity: Central hub displaying financial summary and navigation options
-  ![屏幕截图 2025-03-27 121542](https://github.com/user-attachments/assets/307f6c3a-a30f-4cdc-9edb-fd4d7302b252)
+  ![image](https://github.com/user-attachments/assets/933e1f74-b2ef-485a-b427-43b71388380e)
 
 - ExpenseActivity: Handles adding new expenses
   ![屏幕截图 2025-03-27 122941](https://github.com/user-attachments/assets/2c638a5f-952e-4a59-a3b1-b383c5f816d0)
