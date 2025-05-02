@@ -78,13 +78,15 @@ public class TransactionEditActivity extends AppCompatActivity {
         }
 
         // Determine if this is an income or expense transaction
-        isIncome = currentTransaction.getAmount() >= 0;
+        isIncome = "income".equalsIgnoreCase(currentTransaction.getType());
 
         // Set title based on transaction type
         if (isIncome) {
             setTitle("Edit Income");
+            deleteButton.setText(getString(R.string.delete_income));
         } else {
             setTitle("Edit Expense");
+            deleteButton.setText(getString(R.string.delete_expense));
         }
 
         // Fill form with transaction data
