@@ -43,7 +43,8 @@ The features are categorised and listed as below:
   ![屏幕截图 2025-03-27 121256](https://github.com/user-attachments/assets/511ba2d6-763f-41c6-858b-6d798e11edf6)
 4. UI/UX features
 - Dark Mode
-  ![屏幕截图 2025-03-27 123743](https://github.com/user-attachments/assets/1ce9665b-081e-47bf-8ecd-5e26db52309d)
+  ![image](https://github.com/user-attachments/assets/62d5b8b8-a070-4b2d-bf00-67960260c4ba)
+
 
 Testing environment: Elsa (Yilin Wang) cloned the repository and used the Medium Phone emulator to test our project locally. 
 The following parameters define the test environment:
