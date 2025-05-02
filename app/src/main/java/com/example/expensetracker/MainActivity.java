@@ -153,17 +153,17 @@ public class MainActivity extends AppCompatActivity {
         // Get all transactions to calculate income and expense totals
         List<Transaction> transactions = dbHelper.getAllTransactions();
         for (Transaction transaction : transactions) {
-            if (transaction.getAmount() >= 0) {
+            if ("income".equalsIgnoreCase(transaction.getType())) {
                 totalIncome += transaction.getAmount();
-            } else {
-                totalExpense += Math.abs(transaction.getAmount());
+            } else if ("expense".equalsIgnoreCase(transaction.getType())) {
+                totalExpense += transaction.getAmount();
             }
         }
         
         // Format with Euro symbol
         totalBalanceText.setText(String.format("€%.2f", balance));
         totalIncomeText.setText(String.format("€%.2f", totalIncome));
-        totalExpenseText.setText(String.format("€%.2f", totalExpense));
+        totalExpenseText.setText(String.format("€%.2f", Math.abs(totalExpense)));
     }
     
     private void toggleDarkMode() {
