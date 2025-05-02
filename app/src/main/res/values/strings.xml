@@ -1,5 +1,8 @@
 <resources>
     <string name="app_name">Expensetracker</string>
+    <string name="delete_transaction">Delete Transaction</string>
+    <string name="delete_income">Delete Income</string>
+    <string name="delete_expense">Delete Expense</string>
     <string name="action_settings">Settings</string>
     
     <!-- Tutorial strings -->

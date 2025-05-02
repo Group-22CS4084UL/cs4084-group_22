@@ -117,10 +117,10 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
             // Set amount with appropriate formatting and Euro symbol
             double amount = transaction.getAmount();
             String amountText = String.format("€%.2f", Math.abs(amount));
-            if (amount >= 0) {
+            if ("income".equalsIgnoreCase(transaction.getType())) {
                 transactionAmount.setTextColor(Color.GREEN);
                 transactionAmount.setText("+" + amountText);
-            } else {
+            } else if ("expense".equalsIgnoreCase(transaction.getType())) {
                 transactionAmount.setTextColor(Color.RED);
                 transactionAmount.setText("-" + amountText);
             }
